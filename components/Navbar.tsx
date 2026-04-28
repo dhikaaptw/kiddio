@@ -51,13 +51,13 @@ function SignUpButton({ href, children }: { href: string; children: React.ReactN
         textDecoration: "none",
         backgroundColor: "#E8956D",
         borderRadius: "20px",
-        padding: "10px 28px",
+        padding: "12px 32px",
         display: "inline-block",
         transition: "all 0.2s ease",
         boxShadow: pressed
           ? "0 2px 0px #c9714d"
           : hovered
-          ? "0 7px 0px #c9714d"
+          ? "0 6px 0px #c9714d"
           : "0 4px 0px #c9714d",
         transform: pressed
           ? "translateY(2px)"
@@ -88,33 +88,40 @@ export default function Navbar() {
         right: 0,
         zIndex: 50,
         backgroundColor: "#FDF6F0",
-        padding: "16px 80px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
         boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
       }}
     >
-      <Link href="/" style={{ textDecoration: "none" }}>
-        <span
-          style={{
-            fontFamily: "'Fredoka One', cursive",
-            fontSize: "40px",
-            color: "#E8956D",
-            lineHeight: 1,
-            transition: "opacity 0.2s ease",
-            display: "inline-block",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-        >
-          Kiddio
-        </span>
-      </Link>
+      <div
+        style={{
+          maxWidth: "1440px",
+          margin: "0 auto",
+          padding: "20px 120px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <span
+            style={{
+              fontFamily: "'Fredoka One', cursive",
+              fontSize: "32px",
+              color: "#E8956D",
+              lineHeight: 1,
+              transition: "opacity 0.2s ease",
+              display: "inline-block",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            Kiddio
+          </span>
+        </Link>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-        <NavLink href="/login">Login</NavLink>
-        <SignUpButton href="/register">Sign Up</SignUpButton>
+        <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+          <NavLink href="/login">Login</NavLink>
+          <SignUpButton href="/register">Sign Up</SignUpButton>
+        </div>
       </div>
     </nav>
   );

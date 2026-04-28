@@ -14,25 +14,25 @@ function StartChatButton({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       style={{
         fontFamily: "'Fredoka One', cursive",
-        fontSize: "22px",
+        fontSize: "16px",
         color: "#E8956D",
         backgroundColor: "#FFFFFF",
         border: "none",
-        borderRadius: "20px",
-        padding: "18px 40px",
+        borderRadius: "16px",
+        padding: "12px 28px",
         cursor: "pointer",
         whiteSpace: "nowrap",
         transition: "all 0.15s ease",
         boxShadow: pressed
           ? "0 1px 0px rgba(0,0,0,0.15)"
           : hovered
-          ? "0 10px 24px rgba(0,0,0,0.18)"
-          : "0 4px 12px rgba(0,0,0,0.1)",
+            ? "0 8px 20px rgba(0,0,0,0.18)"
+            : "0 3px 10px rgba(0,0,0,0.1)",
         transform: pressed
           ? "translateY(4px) scale(0.97)"
           : hovered
-          ? "translateY(-4px)"
-          : "translateY(0) scale(1)",
+            ? "translateY(-3px)"
+            : "translateY(0) scale(1)",
         filter: pressed ? "brightness(0.96)" : "brightness(1)",
       }}
       onMouseEnter={() => setHovered(true)}
@@ -55,25 +55,25 @@ function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: stri
     <div
       style={{
         backgroundColor: "#FDF1E5",
-        borderRadius: "16px",
-        padding: "32px 24px",
+        borderRadius: "14px",
+        padding: "24px 18px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         textAlign: "center",
-        gap: "12px",
+        gap: "10px",
         transition: "all 0.25s ease",
         border: hovered ? "2px solid #E8956D" : "2px solid transparent",
-        transform: hovered ? "translateY(-6px)" : "translateY(0)",
-        boxShadow: hovered ? "0 12px 28px rgba(232,149,109,0.2)" : "none",
+        transform: hovered ? "translateY(-5px)" : "translateY(0)",
+        boxShadow: hovered ? "0 10px 24px rgba(232,149,109,0.2)" : "none",
         cursor: "default",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div style={{ width: "48px", height: "48px", color: "#E8956D" }}>{icon}</div>
-      <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: "20px", color: "#3D2C2C" }}>{title}</div>
-      <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "16px", color: "#3D2C2C" }}>{desc}</div>
+      <div style={{ width: "36px", height: "36px", color: "#E8956D" }}>{icon}</div>
+      <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: "16px", color: "#3D2C2C" }}>{title}</div>
+      <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "14px", color: "#3D2C2C" }}>{desc}</div>
     </div>
   );
 }
@@ -98,40 +98,38 @@ export default function LandingPage() {
     <div style={{ backgroundColor: "#FDF6F0", minHeight: "100vh", overflowX: "hidden" }}>
       <Navbar />
 
-      {/*HERO SECTION*/}
+      {/* HERO SECTION */}
       <section
         style={{
-          paddingTop: "100px",
-          paddingLeft: "80px",
-          paddingRight: "0px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
           minHeight: "100vh",
           maxWidth: "1440px",
           margin: "0 auto",
+          padding: "80px 0 0 120px",
+          overflow: "hidden",
         }}
       >
-        <div style={{ flex: "0 0 420px" }}>
+        <div style={{ flex: "0 0 480px", zIndex: 1 }}>
           <h1
             style={{
               fontFamily: "'Fredoka One', cursive",
-              fontSize: "52px",
-              lineHeight: 1.15,
+              fontSize: "58px",
+              lineHeight: 1.1,
               color: "#3D2C2C",
-              marginBottom: "24px",
+              marginBottom: "20px",
             }}
           >
-            Your AI Companion for Parenting
+            Your AI Companion<br />for Parenting
           </h1>
 
           <p
             style={{
               fontFamily: "'Fredoka', sans-serif",
-              fontSize: "22px",
-              lineHeight: 1.5,
+              fontSize: "18px",
+              lineHeight: 1.6,
               color: "#3D2C2C",
-              marginBottom: "40px",
+              marginBottom: "36px",
               maxWidth: "360px",
             }}
           >
@@ -142,12 +140,12 @@ export default function LandingPage() {
             onClick={handleStartChat}
             style={{
               fontFamily: "'Fredoka', sans-serif",
-              fontSize: "22px",
+              fontSize: "18px",
               color: "#FFFFFF",
               backgroundColor: "#E8956D",
               border: "none",
-              borderRadius: "20px",
-              padding: "18px 48px",
+              borderRadius: "16px",
+              padding: "14px 40px",
               cursor: "pointer",
               transition: "all 0.2s ease",
               boxShadow: "0 4px 0px #c9714d",
@@ -179,33 +177,37 @@ export default function LandingPage() {
             display: "flex",
             justifyContent: "flex-end",
             alignItems: "center",
+            alignSelf: "stretch",
+            overflow: "hidden",
           }}
         >
           <img
             src="/images/no_bg_start.png"
             alt="Kiddio mascot"
             style={{
-              width: "100%",
-              maxWidth: "700px",
+              height: "85vh",
+              width: "680px",
               objectFit: "contain",
+              objectPosition: "center right",
               display: "block",
+              marginBottom: "-40px",
             }}
           />
         </div>
       </section>
 
-      {/*WHAT KIDDIO CAN DO SECTION*/}
+      {/* WHAT KIDDIO CAN DO SECTION */}
       <section
         id="features"
-        style={{ padding: "80px 80px", maxWidth: "1440px", margin: "0 auto" }}
+        style={{ padding: "60px 60px", maxWidth: "1440px", margin: "0 auto" }}
       >
         <h2
           style={{
             fontFamily: "'Fredoka One', cursive",
-            fontSize: "40px",
+            fontSize: "30px",
             color: "#3D2C2C",
             textAlign: "center",
-            marginBottom: "16px",
+            marginBottom: "12px",
           }}
         >
           What Kiddio can do
@@ -213,16 +215,16 @@ export default function LandingPage() {
         <p
           style={{
             fontFamily: "'Fredoka', sans-serif",
-            fontSize: "22px",
+            fontSize: "16px",
             color: "#3D2C2C",
             textAlign: "center",
-            marginBottom: "48px",
+            marginBottom: "36px",
           }}
         >
           Smart, caring support for every stage of your parenting journey.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "28px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
           <FeatureCard icon={<ChatIcon />} title="Parenting Q&A" desc="Get instant answer to your parenting questions." />
           <FeatureCard icon={<HeartIcon />} title="Personalized Advice" desc="Advice tailored to your child's needs." />
           <FeatureCard icon={<GrowthIcon />} title="Growth Tracking" desc="Track milestones and development." />
@@ -230,12 +232,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ padding: "0 80px 80px", maxWidth: "1440px", margin: "0 auto" }}>
+      <section style={{ padding: "0 60px 60px", maxWidth: "1440px", margin: "0 auto" }}>
         <div
           style={{
             backgroundColor: "#FAD8C7",
-            borderRadius: "20px",
-            padding: "56px 80px",
+            borderRadius: "16px",
+            padding: "40px 60px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -248,8 +250,8 @@ export default function LandingPage() {
               position: "absolute",
               left: "-30px",
               bottom: "-40px",
-              width: "200px",
-              height: "200px",
+              width: "160px",
+              height: "160px",
               backgroundColor: "rgba(255,255,255,0.3)",
               borderRadius: "50%",
             }}
@@ -259,10 +261,10 @@ export default function LandingPage() {
             <h2
               style={{
                 fontFamily: "'Fredoka One', cursive",
-                fontSize: "38px",
+                fontSize: "28px",
                 color: "#3D2C2C",
-                marginBottom: "16px",
-                maxWidth: "700px",
+                marginBottom: "12px",
+                maxWidth: "500px",
                 lineHeight: 1.2,
               }}
             >
@@ -271,9 +273,9 @@ export default function LandingPage() {
             <p
               style={{
                 fontFamily: "'Fredoka', sans-serif",
-                fontSize: "22px",
+                fontSize: "16px",
                 color: "#3D2C2C",
-                maxWidth: "580px",
+                maxWidth: "420px",
               }}
             >
               Ask anything about your child and get personalized support.
@@ -287,7 +289,7 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ backgroundColor: "#FDF1E5", padding: "48px 80px", position: "relative", overflow: "hidden" }}>
+      <footer style={{ backgroundColor: "#FDF1E5", padding: "48px 0", position: "relative", overflow: "hidden" }}>
         <img
           src="/images/no_bg_footer.png"
           alt="footer decoration"
@@ -295,7 +297,7 @@ export default function LandingPage() {
             position: "absolute",
             right: "0",
             bottom: "0",
-            width: "140px",
+            width: "110px",
             opacity: 0.6,
             zIndex: 0,
           }}
@@ -304,23 +306,21 @@ export default function LandingPage() {
           style={{
             maxWidth: "1440px",
             margin: "0 auto",
+            padding: "0 120px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            flexWrap: "wrap",
-            gap: "48px",
             position: "relative",
             zIndex: 1,
-            paddingRight: "180px",
           }}
         >
-          <div>
+          <div style={{ flex: "0 0 300px" }}>
             <div
               style={{
                 fontFamily: "'Fredoka One', cursive",
-                fontSize: "40px",
+                fontSize: "32px",
                 color: "#E8956D",
-                marginBottom: "12px",
+                marginBottom: "10px",
               }}
             >
               Kiddio
@@ -328,9 +328,9 @@ export default function LandingPage() {
             <p
               style={{
                 fontFamily: "'Fredoka', sans-serif",
-                fontSize: "18px",
+                fontSize: "14px",
                 color: "#3D2C2C",
-                maxWidth: "280px",
+                maxWidth: "220px",
                 lineHeight: 1.5,
               }}
             >
@@ -338,65 +338,74 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div>
-            <div
-              style={{
-                fontFamily: "'Fredoka One', cursive",
-                fontSize: "18px",
-                color: "#3D2C2C",
-                marginBottom: "12px",
-              }}
-            >
-              Product
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              gap: "120px",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontFamily: "'Fredoka One', cursive",
+                  fontSize: "16px",
+                  color: "#3D2C2C",
+                  marginBottom: "10px",
+                }}
+              >
+                Product
+              </div>
+              <button
+                onClick={scrollToFeatures}
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontSize: "14px",
+                  color: "#3D2C2C",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#E8956D")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#3D2C2C")}
+              >
+                Features
+              </button>
             </div>
-            <button
-              onClick={scrollToFeatures}
-              style={{
-                fontFamily: "'Fredoka', sans-serif",
-                fontSize: "16px",
-                color: "#3D2C2C",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#E8956D")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#3D2C2C")}
-            >
-              Features
-            </button>
-          </div>
 
-          <div>
-            <div
-              style={{
-                fontFamily: "'Fredoka One', cursive",
-                fontSize: "18px",
-                color: "#3D2C2C",
-                marginBottom: "12px",
-              }}
-            >
-              Support
-            </div>
-            <div
-              style={{
-                fontFamily: "'Fredoka', sans-serif",
-                fontSize: "16px",
-                color: "#3D2C2C",
-                lineHeight: 2.2,
-              }}
-            >
-              {["Privacy Policy", "Terms of Service"].map((item) => (
-                <div
-                  key={item}
-                  style={{ cursor: "pointer", transition: "color 0.2s" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.color = "#E8956D")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.color = "#3D2C2C")}
-                >
-                  {item}
-                </div>
-              ))}
+            <div>
+              <div
+                style={{
+                  fontFamily: "'Fredoka One', cursive",
+                  fontSize: "16px",
+                  color: "#3D2C2C",
+                  marginBottom: "10px",
+                }}
+              >
+                Support
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontSize: "14px",
+                  color: "#3D2C2C",
+                  lineHeight: 2.2,
+                }}
+              >
+                {["Privacy Policy", "Terms of Service"].map((item) => (
+                  <div
+                    key={item}
+                    style={{ cursor: "pointer", transition: "color 0.2s" }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.color = "#E8956D")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.color = "#3D2C2C")}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
