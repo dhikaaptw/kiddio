@@ -40,218 +40,76 @@ export default function RegisterPage() {
     }
   };
 
-  const inputStyle = (field: string) => ({
-    width: "100%",
-    border: focusedField === field ? "2px solid #E8956D" : "1px solid #E8956D",
-    borderRadius: "12px",
-    padding: "10px 16px",
-    fontSize: "15px",
-    fontFamily: "'Fredoka', sans-serif",
-    color: "#3D2C2C",
-    outline: "none",
-    backgroundColor: "#FFFFFF",
-    boxSizing: "border-box" as const,
-    transition: "all 0.2s ease",
-    boxShadow: focusedField === field ? "0 0 0 3px rgba(232,149,109,0.15)" : "none",
-  });
+  const inputClass = (field: string) => `
+    w-full border rounded-[12px] px-[16px] py-[10px] text-[15px] text-[#3D2C2C] outline-none bg-white transition-all duration-200 box-border
+    ${focusedField === field ? "border-2 border-[#E8956D] shadow-[0_0_0_3px_rgba(232,149,109,0.15)]" : "border-[#E8956D] shadow-none"}
+  `;
 
   return (
-    <div
-      style={{
-        backgroundColor: "#FDF6F0",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Fredoka', sans-serif",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#FFFFFF",
-          border: "1px solid #E8956D",
-          borderRadius: "20px",
-          padding: "32px 44px",
-          width: "100%",
-          maxWidth: "460px",
-          boxShadow: "0 8px 32px rgba(232,149,109,0.12)",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "'Fredoka One', cursive",
-            fontSize: "36px",
-            color: "#E8956D",
-            textAlign: "center",
-            marginBottom: "2px",
-          }}
-        >
-          Kiddio
-        </div>
+    <div className="bg-[#FDF6F0] min-h-screen flex items-center justify-center p-[20px]" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+      <div className="bg-white border border-[#E8956D] rounded-[20px] px-[44px] py-[32px] w-full max-w-[460px] shadow-[0_8px_32px_rgba(232,149,109,0.12)]">
+        <div className="text-[36px] text-[#E8956D] text-center mb-[2px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Kiddio</div>
+        <p className="text-[15px] text-[#9E7E7A] text-center mb-[24px]">Make a new account and start your parenting journey with us!</p>
 
-        <p
-          style={{
-            fontSize: "15px",
-            color: "#9E7E7A",
-            textAlign: "center",
-            marginBottom: "24px",
-          }}
-        >
-          Make a new account and start your parenting journey with us!
-        </p>
-
-        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <form onSubmit={handleRegister} className="flex flex-col gap-[14px]">
           <div>
-            <label
-              style={{
-                fontFamily: "'Fredoka One', cursive",
-                fontSize: "16px",
-                color: "#3D2C2C",
-                display: "block",
-                marginBottom: "5px",
-              }}
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              placeholder="Your username"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onFocus={() => setFocusedField("name")}
-              onBlur={() => setFocusedField(null)}
-              required
-              style={inputStyle("name")}
+            <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Username</label>
+            <input 
+              type="text" 
+              placeholder="Your username" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              onFocus={() => setFocusedField("name")} 
+              onBlur={() => setFocusedField(null)} 
+              required 
+              className={inputClass("name")} 
             />
           </div>
-
           <div>
-            <label
-              style={{
-                fontFamily: "'Fredoka One', cursive",
-                fontSize: "16px",
-                color: "#3D2C2C",
-                display: "block",
-                marginBottom: "5px",
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="example@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setFocusedField("email")}
-              onBlur={() => setFocusedField(null)}
-              required
-              style={inputStyle("email")}
+            <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Email</label>
+            <input 
+              type="email" 
+              placeholder="example@gmail.com" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              onFocus={() => setFocusedField("email")} 
+              onBlur={() => setFocusedField(null)} 
+              required 
+              className={inputClass("email")} 
             />
           </div>
-
           <div>
-            <label
-              style={{
-                fontFamily: "'Fredoka One', cursive",
-                fontSize: "16px",
-                color: "#3D2C2C",
-                display: "block",
-                marginBottom: "5px",
-              }}
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onFocus={() => setFocusedField("password")}
-              onBlur={() => setFocusedField(null)}
-              required
-              style={inputStyle("password")}
+            <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Password</label>
+            <input 
+              type="password" 
+              placeholder="••••••••" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              onFocus={() => setFocusedField("password")} 
+              onBlur={() => setFocusedField(null)} 
+              required 
+              className={inputClass("password")} 
             />
           </div>
 
           {error && (
-            <div
-              style={{
-                backgroundColor: "#FFE5E5",
-                border: "1px solid #ffcccc",
-                borderRadius: "10px",
-                padding: "10px 14px",
-                color: "#CC0000",
-                fontSize: "14px",
-                textAlign: "center",
-              }}
-            >
+            <div className="bg-[#FFE5E5] border border-[#ffcccc] rounded-[10px] px-[14px] py-[10px] text-[#CC0000] text-[14px] text-center">
               {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              backgroundColor: "#E8956D",
-              color: "#FFFFFF",
-              fontFamily: "'Fredoka One', cursive",
-              fontSize: "18px",
-              border: "none",
-              borderRadius: "14px",
-              padding: "14px",
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.7 : 1,
-              transition: "all 0.2s ease",
-              boxShadow: "0 4px 0px #c9714d",
-              marginTop: "4px",
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 6px 0px #c9714d";
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 0px #c9714d";
-            }}
-            onMouseDown={(e) => {
-              if (!loading) {
-                e.currentTarget.style.transform = "translateY(2px)";
-                e.currentTarget.style.boxShadow = "0 2px 0px #c9714d";
-              }
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 0px #c9714d";
-            }}
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="w-full bg-[#E8956D] !text-white text-[18px] border-none rounded-[14px] py-[14px] mt-[4px] cursor-pointer transition-all duration-200 shadow-[0_4px_0px_#c9714d] hover:-translate-y-[2px] hover:shadow-[0_6px_0px_#c9714d] active:translate-y-[2px] active:shadow-[0_2px_0px_#c9714d] disabled:opacity-70 disabled:cursor-not-allowed" 
+            style={{ fontFamily: "'Fredoka One', cursive" }}
           >
             {loading ? "Loading..." : "Sign Up"}
           </button>
         </form>
 
-        <p
-          style={{
-            fontSize: "15px",
-            color: "#3D2C2C",
-            textAlign: "center",
-            marginTop: "18px",
-          }}
-        >
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            style={{
-              color: "#E8956D",
-              fontFamily: "'Fredoka One', cursive",
-              textDecoration: "none",
-            }}
-          >
-            Login
-          </Link>
+        <p className="text-[15px] text-[#3D2C2C] text-center mt-[18px]">
+          Already have an account? <Link href="/login" className="text-[#E8956D] no-underline font-bold" style={{ fontFamily: "'Fredoka One', cursive" }}>Login</Link>
         </p>
       </div>
     </div>

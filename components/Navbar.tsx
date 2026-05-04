@@ -5,123 +5,51 @@ import { useState } from "react";
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const [hovered, setHovered] = useState(false);
-
   return (
     <Link
       href={href}
-      style={{
-        fontFamily: "'Fredoka One', cursive",
-        fontSize: "20px",
-        color: hovered ? "#E8956D" : "#3D2C2C",
-        textDecoration: "none",
-        transition: "color 0.2s ease",
-        position: "relative",
+      className="relative transition-colors duration-200 no-underline shrink-0"
+      style={{ 
+        fontFamily: "'Fredoka One', cursive", fontSize: "20px", 
+        color: hovered ? "#E8956D" : "#3D2C2C" 
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {children}
       <span
-        style={{
-          position: "absolute",
-          bottom: "-3px",
-          left: 0,
-          width: hovered ? "100%" : "0%",
-          height: "2px",
-          backgroundColor: "#E8956D",
-          transition: "width 0.2s ease",
-          display: "block",
-        }}
+        className="absolute left-0 bg-[#E8956D] transition-all duration-200 block"
+        style={{ bottom: "-3px", height: "2px", width: hovered ? "100%" : "0%" }}
       />
-    </Link>
-  );
-}
-
-function SignUpButton({ href, children }: { href: string; children: React.ReactNode }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
-
-  return (
-    <Link
-      href={href}
-      style={{
-        fontFamily: "'Fredoka', sans-serif",
-        fontSize: "20px",
-        color: "#FFFFFF",
-        textDecoration: "none",
-        backgroundColor: "#E8956D",
-        borderRadius: "20px",
-        padding: "12px 32px",
-        display: "inline-block",
-        transition: "all 0.2s ease",
-        boxShadow: pressed
-          ? "0 2px 0px #c9714d"
-          : hovered
-          ? "0 6px 0px #c9714d"
-          : "0 4px 0px #c9714d",
-        transform: pressed
-          ? "translateY(2px)"
-          : hovered
-          ? "translateY(-3px)"
-          : "translateY(0)",
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-    >
-      {children}
     </Link>
   );
 }
 
 export default function Navbar() {
   return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        backgroundColor: "#FDF6F0",
-        boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1440px",
-          margin: "0 auto",
-          padding: "20px 120px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <span
-            style={{
-              fontFamily: "'Fredoka One', cursive",
-              fontSize: "32px",
-              color: "#E8956D",
-              lineHeight: 1,
-              transition: "opacity 0.2s ease",
-              display: "inline-block",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+    <nav className="fixed top-0 left-0 w-full z-50 bg-[#FDF6F0] shadow-[0_1px_8px_rgba(0,0,0,0.05)]">
+      <div className="w-full max-w-[1440px] mx-auto px-[60px] md:px-[120px] py-[20px] flex items-center justify-between">
+        
+        <Link href="/" className="no-underline shrink-0">
+          <span 
+            className="text-[32px] text-[#E8956D] leading-none inline-block hover:opacity-80 transition-opacity" 
+            style={{ fontFamily: "'Fredoka One', cursive" }}
           >
             Kiddio
           </span>
         </Link>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+        <div className="flex items-center gap-[32px] shrink-0">
           <NavLink href="/login">Login</NavLink>
-          <SignUpButton href="/register">Sign Up</SignUpButton>
+          <Link
+            href="/register"
+            className="text-[20px] !text-white no-underline bg-[#E8956D] rounded-[20px] px-[32px] py-[12px] inline-block transition-all duration-200 shadow-[0_4px_0px_#c9714d] hover:-translate-y-[3px] hover:shadow-[0_6px_0px_#c9714d] active:translate-y-[2px] active:shadow-[0_2px_0px_#c9714d]"
+            style={{ fontFamily: "'Fredoka', sans-serif" }}
+          >
+            Sign Up
+          </Link>
         </div>
+
       </div>
     </nav>
   );

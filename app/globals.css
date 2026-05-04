@@ -1,29 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Fredoka:wght@300;400;500;600&display=swap');
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --bg-main: #FDF6F0;
-  --bg-card: #FDF1E5;
-  --bg-peach: #FAD8C7;
-  --color-primary: #E8956D;
-  --color-dark: #3D2C2C;
-  --color-muted: #9E7E7A;
-  --color-white: #FFFFFF;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
   background-color: var(--bg-main);
-  color: var(--color-dark);
+  color: #3D2C2C;
   font-family: 'Fredoka', sans-serif;
-  font-weight: 400;
-}
-
-h1, h2, h3, .font-display {
-  font-family: 'Fredoka One', cursive;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
