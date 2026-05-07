@@ -10,7 +10,7 @@ export default function LandingPage() {
 
   return (
     <div className="bg-[#FDF6F0] min-h-screen w-full overflow-x-hidden">
-      
+
       <Navbar />
 
       <section className="flex items-center min-h-screen max-w-[1440px] mx-auto px-[80px] md:px-[140px] pt-[80px] overflow-hidden">
@@ -41,7 +41,7 @@ export default function LandingPage() {
         <p className="text-[16px] text-[#3D2C2C] text-center mb-[36px]" style={{ fontFamily: "'Fredoka', sans-serif" }}>Smart, caring support for every stage of your parenting journey.</p>
 
         <div className="grid grid-cols-4 gap-[20px]">
-          {[ 
+          {[
             { icon: <ChatIcon />, title: "Parenting Q&A", desc: "Get instant answer to your parenting questions." },
             { icon: <HeartIcon />, title: "Personalized Advice", desc: "Advice tailored to your child's needs." },
             { icon: <GrowthIcon />, title: "Growth Tracking", desc: "Track milestones and development." },
@@ -60,7 +60,7 @@ export default function LandingPage() {
       <section className="px-[60px] pb-[60px] max-w-[1440px] mx-auto">
         <div className="bg-[#FAD8C7] rounded-[16px] px-[60px] py-[40px] flex items-center justify-between relative overflow-hidden">
           <div className="absolute bg-white/30 rounded-full" style={{ width: '160px', height: '160px', left: '-30px', bottom: '-40px', zIndex: 0 }} />
-          
+
           <div className="flex-1 relative z-[1]">
             <h2 className="text-[28px] text-[#3D2C2C] mb-[12px] max-w-[500px] leading-[1.2]" style={{ fontFamily: "'Fredoka One', cursive" }}>
               Start your parenting journey with Kiddio today
@@ -85,16 +85,16 @@ export default function LandingPage() {
 
       {/* FOOTER */}
       <footer className="bg-[#FDF1E5] py-[48px] relative overflow-hidden">
-        
-        <img 
-          src="/images/no_bg_footer.png" 
-          alt="leaf" 
-          className="absolute right-[-20px] bottom-[-20px] pointer-events-none" 
-          style={{ width: '140px', opacity: 0.4, zIndex: 0 }} 
+
+        <img
+          src="/images/no_bg_footer.png"
+          alt="leaf"
+          className="absolute right-[-20px] bottom-[-20px] pointer-events-none"
+          style={{ width: '140px', opacity: 0.4, zIndex: 0 }}
         />
 
         <div className="max-w-[1440px] mx-auto px-[60px] md:px-[120px] flex justify-between items-start relative z-[1]">
-          
+
           <div className="flex-[0_0_300px]">
             <div className="text-[32px] text-[#E8956D] mb-[10px]" style={{ fontFamily: "'Fredoka One', cursive" }}>
               Kiddio

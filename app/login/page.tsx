@@ -55,28 +55,28 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="flex flex-col gap-[14px]">
           <div>
             <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Email</label>
-            <input 
-              type="email" 
-              placeholder="example@gmail.com" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              onFocus={() => setFocusedField("email")} 
-              onBlur={() => setFocusedField(null)} 
-              required 
-              className={inputClass("email")} 
+            <input
+              type="email"
+              placeholder="example@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
+              required
+              className={inputClass("email")}
             />
           </div>
           <div>
             <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              onFocus={() => setFocusedField("password")} 
-              onBlur={() => setFocusedField(null)} 
-              required 
-              className={inputClass("password")} 
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusedField("password")}
+              onBlur={() => setFocusedField(null)}
+              required
+              className={inputClass("password")}
             />
           </div>
 
@@ -86,10 +86,10 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button 
-            type="submit" 
-            disabled={loading} 
-            className="w-full bg-[#E8956D] !text-white text-[18px] border-none rounded-[14px] py-[14px] mt-[4px] cursor-pointer transition-all duration-200 shadow-[0_4px_0px_#c9714d] hover:-translate-y-[2px] hover:shadow-[0_6px_0px_#c9714d] active:translate-y-[2px] active:shadow-[0_2px_0px_#c9714d] disabled:opacity-70 disabled:cursor-not-allowed" 
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#E8956D] !text-white text-[18px] border-none rounded-[14px] py-[14px] mt-[4px] cursor-pointer transition-all duration-200 shadow-[0_4px_0px_#c9714d] hover:-translate-y-[2px] hover:shadow-[0_6px_0px_#c9714d] active:translate-y-[2px] active:shadow-[0_2px_0px_#c9714d] disabled:opacity-70 disabled:cursor-not-allowed"
             style={{ fontFamily: "'Fredoka One', cursive" }}
           >
             {loading ? "Loading..." : "Login"}
