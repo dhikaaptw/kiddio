@@ -140,18 +140,38 @@ export default function OnboardingPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!validate()) return;
 
-    const data: ChildData = {
-      name: name.trim(),
-      ageMonths: ageMonths!,
-      tone: tone!,
-    };
+    try {
+      const token = localStorage.getItem("token");
 
-    localStorage.setItem("childData", JSON.stringify(data));
-    localStorage.setItem("onboardingDone", "true");
-    setStep(2);
+      const res = await fetch("/api/user/child", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          age: Math.floor(ageMonths! / 12),
+          aiStyle: tone === "casual" ? "Casual" : tone === "empathetic" ? "Empathetic" : "Precise",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({ name: data.error || "failed to save data"});
+        return;
+      }
+
+      localStorage.setItem("onboardingComplete", "true");
+      setStep(2);
+
+    } catch (error) {
+      setErrors({ name: "error occured" });
+    }
   };
 
   return (
