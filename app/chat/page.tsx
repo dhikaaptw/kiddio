@@ -1,509 +1,251 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-};
 
-type ChatSession = {
-  id: string;
-  title: string;
-  messages: Message[];
-  createdAt: number;
-};
+type Message = { role: "user" | "ai"; text: string };
+type Chat    = { id: number; title: string; messages: Message[] };
 
-const QUICK_TOPICS = [
-  { label: "Sleep Tips" },
-  { label: "Feeding & Nutrition" },
-  { label: "Health" },
-  { label: "Behavior & Emotions" },
-  { label: "Parental Advice" },
+const QUICK_TOPICS = ["Sleep Tips", "Feeding & Nutrition", "Health", "Behavior & Emotions", "Parental Advice"];
+
+const INITIAL_CHATS: Chat[] = [
+  {
+    id: 1, title: "Sleep Tips",
+    messages: [
+      { role: "user", text: "My 3 year old has been waking up at night. Is this normal?" },
+      { role: "ai",  text: "Hi! Yes, sleep regression can be normal at this age. It might be caused by growth, changes in routine, or developmental leaps." },
+      { role: "ai",  text: "Here are a few tips that might help:\n• Keep a consistent bedtime routine\n• Reduce screen time before bed\n• Create a calm and comforting environment" },
+    ],
+  },
+  { id: 2, title: "Health",     messages: [] },
+  { id: 3, title: "Food Tips",  messages: [] },
 ];
 
-function SendIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+const AiAvatar = () => (
+  <div className="w-9 h-9 rounded-full bg-brand-peach flex items-center justify-center shrink-0 mt-1">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="9" fill="#E8956D" opacity="0.2"/>
+      <path d="M6 8h10M6 11h10M6 14h6" stroke="#E8956D" strokeWidth="1.8" strokeLinecap="round"/>
     </svg>
-  );
-}
+  </div>
+);
 
-function ChatIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#3D2C2C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+const UserAvatar = () => (
+  <div className="w-9 h-9 rounded-full bg-brand-peach flex items-center justify-center shrink-0 mt-1">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="8" r="4" fill="#E8956D"/>
+      <path d="M3 19C3 15.5 6.5 13 11 13C15.5 13 19 15.5 19 19" stroke="#E8956D" strokeWidth="1.8" strokeLinecap="round"/>
     </svg>
-  );
-}
+  </div>
+);
 
-function MenuIcon() {
+function TypingIndicator() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M3 12h18M3 6h18M3 18h18" stroke="#3D2C2C" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M18 6L6 18M6 6l12 12" stroke="#3D2C2C" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function DotsIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <circle cx="5" cy="12" r="2" />
-      <circle cx="12" cy="12" r="2" />
-      <circle cx="19" cy="12" r="2" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <polyline points="3 6 5 6 21 6" stroke="#FF4D4D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="#FF4D4D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function AIIcon() {
-  return (
-    <div className="w-12 h-12 rounded-full bg-[#E8956D] flex items-center justify-center flex-shrink-0 shadow-md">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A7 7 0 0 1 12 2z" stroke="white" strokeWidth="1.6" />
-      </svg>
+    <div className="flex items-start gap-3">
+      <AiAvatar />
+      <div className="bg-brand-card border border-brand-peach rounded-[4px_16px_16px_16px] px-4 py-3">
+        <div className="flex gap-1 items-center h-5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="w-2.5 h-2.5 rounded-full bg-brand-orange animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
-const WELCOME_MESSAGE: Message = {
-  id: "welcome",
-  role: "assistant",
-  content: "Hi! I'm Kiddio, your parenting assistant 👋 How can I help you today?",
-};
+function ChatBubble({ msg }: { msg: Message }) {
+  const isUser = msg.role === "user";
+  return (
+    <div className={`flex items-start gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
+      {!isUser && <AiAvatar />}
+      <div className={`max-w-[60%] px-4 py-3 text-brand-text leading-relaxed whitespace-pre-line text-base wrap-break-word min-w-0 ${
+        isUser
+          ? "bg-brand-peach rounded-[16px_4px_16px_16px]"
+          : "bg-brand-card border border-brand-peach rounded-[4px_16px_16px_16px]"
+      }`}>
+        {msg.text}
+      </div>
+      {isUser && <UserAvatar />}
+    </div>
+  );
+}
 
-function generateId() {
-  return Math.random().toString(36).slice(2, 10);
+function ChatItem({ chat, active, onSelect, onDelete }: {
+  chat: Chat; active: boolean; onSelect: () => void; onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div onClick={onSelect}
+      className={`flex items-center justify-between rounded-[16px] px-4 py-3 cursor-pointer transition-colors ${
+        active ? "bg-brand-peach" : "bg-brand-card border border-brand-peach hover:bg-brand-peach/50"
+      }`}>
+      <div className="flex items-center gap-3">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H10L4 28V6Z" stroke="#3D2C2C" strokeWidth="1.8"/>
+          <circle cx="11" cy="13" r="1.2" fill="#3D2C2C"/>
+          <circle cx="16" cy="13" r="1.2" fill="#3D2C2C"/>
+          <circle cx="21" cy="13" r="1.2" fill="#3D2C2C"/>
+        </svg>
+        <span className="text-lg text-brand-text truncate max-w-32.5">{chat.title}</span>
+      </div>
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        <button onClick={() => setOpen(!open)}
+          className="bg-transparent border-none cursor-pointer px-1 text-brand-text text-xl hover:text-brand-orange">
+          ⋯
+        </button>
+        {open && (
+          <div className="absolute right-0 top-8 bg-brand-bg border border-brand-orange rounded-[16px] py-2 z-50 min-w-32.5 shadow-lg">
+            <button onClick={() => { onDelete(); setOpen(false); }}
+              className="w-full bg-transparent border-none cursor-pointer px-4 py-2 flex items-center gap-2 text-red-500 text-base hover:bg-red-50">
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function ChatPage() {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [activeId, setActiveId] = useState("");
+  const [chats, setChats] = useState<Chat[]>(INITIAL_CHATS);
+  const [activeChatId, setActiveChatId] = useState(1);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [dotsOpenId, setDotsOpenId] = useState<string | null>(null);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("kiddio_sessions");
-    if (stored) {
-      const parsed: ChatSession[] = JSON.parse(stored);
-      setSessions(parsed);
-      if (parsed.length > 0) setActiveId(parsed[0].id);
-    } else {
-      createNewSession(true);
-    }
-  }, []);
+  const activeChat = chats.find((c) => c.id === activeChatId) ?? chats[0];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [sessions, activeId]);
+  }, [activeChat?.messages]);
 
-  function saveSessions(updated: ChatSession[]) {
-    localStorage.setItem("kiddio_sessions", JSON.stringify(updated));
-    setSessions(updated);
-  }
+  const handleNewChat = () => {
+    const c: Chat = { id: Date.now(), title: "New Chat", messages: [] };
+    setChats((prev) => [c, ...prev]);
+    setActiveChatId(c.id);
+  };
 
-  function createNewSession(initial = false) {
-    const id = generateId();
-    const newSession: ChatSession = {
-      id,
-      title: "New Chat",
-      messages: [WELCOME_MESSAGE],
-      createdAt: Date.now(),
-    };
-    const updated = initial ? [newSession] : [newSession, ...sessions];
-    saveSessions(updated);
-    setActiveId(id);
-  }
+  const handleDeleteChat = (id: number) => {
+    const remaining = chats.filter((c) => c.id !== id);
+    setChats(remaining);
+    if (activeChatId === id) setActiveChatId(remaining[0]?.id ?? -1);
+  };
 
-  function deleteSession(id: string) {
-    const updated = sessions.filter((s) => s.id !== id);
-    saveSessions(updated);
-    if (activeId === id) {
-      if (updated.length > 0) setActiveId(updated[0].id);
-      else createNewSession(true);
-    }
-    setDotsOpenId(null);
-  }
-
-  const activeSession = sessions.find((s) => s.id === activeId);
-
-  // Only show quick topics if the session only has the welcome message
-  const showQuickTopics =
-    activeSession?.messages.length === 1 &&
-    activeSession.messages[0].id === "welcome";
-
-  async function sendMessage(text?: string) {
-    const msgText = text ?? input;
-    if (!msgText.trim() || loading || !activeSession) return;
-
-    const userMsg: Message = {
-      id: generateId(),
-      role: "user",
-      content: msgText.trim(),
-    };
-
+  const handleSend = (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg) return;
+    setChats((prev) => prev.map((c) => c.id === activeChatId
+      ? { ...c, messages: [...c.messages, { role: "user", text: msg }],
+          title: c.title === "New Chat" ? msg.slice(0, 30) : c.title }
+      : c
+    ));
     setInput("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
-
-    const withUser = {
-      ...activeSession,
-      messages: [...activeSession.messages, userMsg],
-      title: activeSession.title === "New Chat" ? userMsg.content.slice(0, 40) : activeSession.title,
-    };
-
-    const updatedSessions = sessions.map((s) => (s.id === activeId ? withUser : s));
-    saveSessions(updatedSessions);
-
     setTimeout(() => {
-      const assistantMsg: Message = {
-        id: generateId(),
-        role: "assistant",
-        content: "This is a demo response. Your AI response will appear here.",
-      };
-      const finalSession = {
-        ...withUser,
-        messages: [...withUser.messages, assistantMsg],
-      };
-      saveSessions(updatedSessions.map((s) => (s.id === activeId ? finalSession : s)));
+      setChats((prev) => prev.map((c) => c.id === activeChatId
+        ? { ...c, messages: [...c.messages, { role: "ai", text: "Thanks for your question! I'm here to help with all your parenting needs. Let me provide you with some helpful information on that topic." }] }
+        : c
+      ));
       setLoading(false);
-    }, 1200);
-  }
+    }, 800);
+  };
 
   return (
-    <div
-      className="h-screen w-screen flex overflow-hidden bg-[#FDF6F0]"
-      style={{ fontFamily: "Fredoka, Inter, sans-serif" }}
-    >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Fredoka+One&display=swap"
-        rel="stylesheet"
-      />
+    <div className="flex h-screen w-full overflow-hidden bg-brand-bg font-sans">
 
-      <style>{`
-        .kiddio-textarea:focus {
-          outline: none !important;
-          box-shadow: none !important;
-          border: none !important;
-        }
-        .kiddio-textarea {
-          outline: none !important;
-          box-shadow: none !important;
-          border: none !important;
-        }
-        .quick-topic-btn {
-          transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-        }
-        .quick-topic-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(232,149,109,0.20);
-          background: #FAD8C7 !important;
-        }
-      `}</style>
-
-      {/* SIDEBAR */}
+      {/* ── SIDEBAR ── */}
       {sidebarOpen && (
-        <aside
-          className="h-full flex flex-col border-r border-[#ECD9CC] bg-[#FFF7F2]"
-          style={{ width: 320 }}
-        >
-          <div className="px-6 pt-6 pb-5 flex items-center justify-between">
-            <span style={{ fontFamily: "'Fredoka One', sans-serif", fontSize: 32, color: "#3D2C2C" }}>
-              Chat History
-            </span>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-[#FAD8C7] hover:scale-105 transition"
-            >
-              <CloseIcon />
-            </button>
-          </div>
+        <aside className="flex flex-col shrink-0 w-72 bg-brand-bg border-r border-brand-border px-4 py-6 relative">
+          <button onClick={() => setSidebarOpen(false)}
+            className="absolute top-6 right-4 w-11 h-11 bg-brand-peach rounded-full flex items-center justify-center text-xl text-brand-text hover:bg-brand-orange hover:text-white transition-colors cursor-pointer border-none">
+            ‹
+          </button>
 
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-            {sessions.map((s) => (
-              <div key={s.id} className="relative">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => { setActiveId(s.id); setDotsOpenId(null); }}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setActiveId(s.id); setDotsOpenId(null); } }}
-                  className="w-full rounded-[18px] px-5 py-5 flex items-center gap-4 transition-all cursor-pointer"
-                  style={{
-                    background: s.id === activeId ? "#FAD8C7" : "#FFF1E7",
-                    border: s.id === activeId ? "1.5px solid #EFC1A8" : "1.5px solid #F3DDD0",
-                  }}
-                >
-                  <ChatIcon />
-                  <span className="truncate flex-1 text-left" style={{ color: "#3D2C2C", fontSize: 20, fontFamily: "'Fredoka', sans-serif" }}>
-                    {s.title}
-                  </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setDotsOpenId(dotsOpenId === s.id ? null : s.id); }}
-                    className="p-1 rounded-full hover:bg-[#E8956D]/20 transition text-[#3D2C2C]"
-                  >
-                    <DotsIcon />
-                  </button>
-                </div>
+          <h2 className="font-display text-3xl text-brand-text mb-5 mt-1">Chat History</h2>
 
-                {dotsOpenId === s.id && (
-                  <div
-                    className="absolute right-0 top-[74px] z-50 rounded-[16px] shadow-lg py-3 px-4"
-                    style={{ background: "#FFF7F2", border: "1px solid #E8B89B" }}
-                  >
-                    <button
-                      onClick={() => deleteSession(s.id)}
-                      className="flex items-center gap-2"
-                      style={{ color: "#FF4D4D", fontFamily: "'Fredoka', sans-serif", fontSize: 18 }}
-                    >
-                      <TrashIcon />
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
+          <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            {chats.map((chat) => (
+              <ChatItem key={chat.id} chat={chat} active={activeChatId === chat.id}
+                onSelect={() => setActiveChatId(chat.id)}
+                onDelete={() => handleDeleteChat(chat.id)} />
             ))}
           </div>
 
-          <div className="p-6 flex items-center gap-3">
-            <button
-              onClick={() => createNewSession()}
-              className="flex-1 h-[60px] rounded-[20px] transition hover:scale-[1.01]"
-              style={{
-                background: "#E8956D",
-                color: "white",
-                fontSize: 22,
-                fontWeight: 500,
-                fontFamily: "'Fredoka', sans-serif",
-                boxShadow: "0 10px 24px rgba(232,149,109,0.18)",
-              }}
-            >
-              New chat +
+          <div className="mt-5 flex gap-2">
+            <button onClick={handleNewChat}
+              className="flex-1 bg-brand-orange hover:bg-brand-orange-dark text-white text-lg rounded-btn py-3 px-4 flex items-center justify-center gap-2 transition-colors border-none cursor-pointer">
+              New Chat +
             </button>
-            <a
-              href="/settings"
-              className="flex-shrink-0 w-[60px] h-[60px] rounded-[20px] flex items-center justify-center transition hover:scale-105"
-              style={{
-                background: "#FFF1E7",
-                border: "1.5px solid #F3DDD0",
-                boxShadow: "0 4px 14px rgba(232,149,109,0.10)",
-              }}
-              title="Settings"
-            >
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
-                  stroke="#E8956D"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-                  stroke="#E8956D"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+            <button onClick={() => router.push("/settings")} title="Settings"
+              className="w-14 h-14 rounded-btn flex items-center justify-center shrink-0 transition-colors cursor-pointer border-none hover:bg-brand-peach"
+              style={{ background: "var(--color-brand-card)", border: "1.5px solid var(--color-brand-orange)" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
-            </a>
+            </button>
           </div>
         </aside>
       )}
 
-      {/* MAIN */}
-      <div className="flex flex-col flex-1 h-full relative">
-        {/* NAVBAR */}
-        <div
-          className="h-[76px] px-8 flex items-center"
-          style={{
-            borderBottom: "1px solid #F2D8CA",
-            background: "rgba(253,246,240,0.92)",
-            backdropFilter: "blur(16px)",
-          }}
-        >
-          <div className="flex items-center gap-4">
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-[#FAD8C7] transition"
-              >
-                <MenuIcon />
+      {/* ── MAIN ── */}
+      <main className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-peach flex-wrap">
+          {!sidebarOpen && (
+            <button onClick={() => setSidebarOpen(true)}
+              className="w-11 h-11 bg-brand-peach rounded-full flex items-center justify-center text-xl text-brand-text hover:bg-brand-orange hover:text-white transition-colors shrink-0 border-none cursor-pointer">
+              ›
+            </button>
+          )}
+          <div className="flex gap-2 flex-wrap flex-1">
+            {QUICK_TOPICS.map((label) => (
+              <button key={label} onClick={() => handleSend(label)}
+                className="bg-brand-card border border-brand-orange rounded-pill px-4 py-2 text-sm text-brand-text whitespace-nowrap hover:bg-brand-peach transition-colors cursor-pointer">
+                {label}
               </button>
-            )}
-            <span style={{ fontSize: 24, fontWeight: 500, color: "#3D2C2C", fontFamily: "'Fredoka', sans-serif" }}>
-              Kiddio
-            </span>
-          </div>
-        </div>
-
-        {/* CHAT */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="w-full max-w-[980px] mx-auto px-8 pt-10 pb-40">
-            {activeSession?.messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex items-end gap-4 mb-16 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                {msg.role === "assistant" && <AIIcon />}
-                <div
-                  className="px-7 py-5 rounded-[28px]"
-                  style={{
-                    background: msg.role === "user" ? "#FAD8C7" : "#FFF7F1",
-                    border: msg.role === "assistant" ? "1.5px solid #F3D6C4" : "1.5px solid transparent",
-                    color: "#3D2C2C",
-                    fontFamily: "'Fredoka', sans-serif",
-                    fontWeight: 400,
-                    fontSize: "20px",
-                    lineHeight: "34px",
-                    maxWidth: msg.role === "user" ? "520px" : "640px",
-                    boxShadow: "0 4px 18px rgba(232,149,109,0.08)",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {msg.content}
-                </div>
-              </div>
             ))}
-
-            {loading && (
-              <div className="flex gap-4 items-end justify-start mb-8">
-                <AIIcon />
-                <div className="px-6 py-5 rounded-[28px]" style={{ background: "#FFF7F1", border: "1.5px solid #F3D6C4" }}>
-                  <div className="flex gap-1 items-center h-5">
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="w-2.5 h-2.5 rounded-full animate-bounce"
-                        style={{ background: "#E8956D", animationDelay: `${i * 0.15}s` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
+          </div>
+          <div className="w-10 h-10 rounded-full bg-brand-peach flex items-center justify-center shrink-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="4" fill="#E8956D"/>
+              <path d="M4 20C4 16.686 7.582 14 12 14C16.418 14 20 16.686 20 20" stroke="#E8956D" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
           </div>
         </div>
 
-        {/* INPUT AREA */}
-        <div className="sticky bottom-0 px-8 pb-8 pt-6 bg-gradient-to-t from-[#FDF6F0] via-[#FDF6F0] to-transparent">
-          <div className="w-full max-w-[980px] mx-auto">
-
-            {/* QUICK TOPICS */}
-            {showQuickTopics && (
-              <div className="mb-5 mt-2">
-                <p
-                  className="mb-4 text-center"
-                  style={{
-                    fontFamily: "'Fredoka One', sans-serif",
-                    fontSize: 16,
-                    color: "#B08D80",
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  Quick Topics
-                </p>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {QUICK_TOPICS.map((topic) => (
-                    <button
-                      key={topic.label}
-                      onClick={() => sendMessage(topic.label)}
-                      className="quick-topic-btn flex items-center gap-2 px-6 py-3 rounded-[20px]"
-                      style={{
-                        background: "#FFF1E7",
-                        border: "1.5px solid #F3DDD0",
-                        color: "#3D2C2C",
-                        fontFamily: "'Fredoka', sans-serif",
-                        fontSize: 17,
-                        fontWeight: 500,
-                        cursor: "pointer",
-                        boxShadow: "0 2px 10px rgba(232,149,109,0.08)",
-                      }}
-                    >
-                      {topic.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* TEXT INPUT */}
-            <div
-              className="w-full overflow-hidden flex items-end gap-4 px-7 py-5 rounded-[32px] backdrop-blur-sm"
-              style={{
-                background: "rgba(255,255,255,0.96)",
-                border: "1.5px solid #EBCFBE",
-                boxShadow: "0 8px 30px rgba(232,149,109,0.10)",
-              }}
-            >
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  e.target.style.height = "auto";
-                  e.target.style.height = Math.min(e.target.scrollHeight, 220) + "px";
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                rows={1}
-                placeholder="Ask Kiddio anything..."
-                className="kiddio-textarea flex-1 bg-transparent resize-none overflow-y-auto placeholder:text-[#B08D80] outline-none ring-0 border-0"
-                style={{
-                  fontSize: 20,
-                  color: "#3D2C2C",
-                  fontFamily: "'Fredoka', sans-serif",
-                  lineHeight: "34px",
-                  maxHeight: 220,
-                  outline: "none",
-                  boxShadow: "none",
-                  WebkitAppearance: "none",
-                }}
-              />
-              <button
-                onClick={() => sendMessage()}
-                disabled={!input.trim() || loading}
-                className="flex-shrink-0 w-[58px] h-[58px] rounded-full flex items-center justify-center transition-all hover:scale-105 disabled:opacity-50"
-                style={{
-                  background: "#E8956D",
-                  boxShadow: "0 8px 20px rgba(232,149,109,0.24)",
-                }}
-              >
-                <SendIcon />
-              </button>
+        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
+          {activeChat?.messages.length === 0 && (
+            <div className="flex-1 flex flex-col items-center justify-center text-brand-muted text-lg gap-3 opacity-70 mt-20">
+              <span className="text-5xl">💬</span>
+              Start a conversation! Ask me anything about parenting.
             </div>
-          </div>
+          )}
+          {activeChat?.messages.map((msg, i) => <ChatBubble key={i} msg={msg} />)}
+          {loading && <TypingIndicator />}
+          <div ref={messagesEndRef} />
         </div>
-      </div>
+
+        <div className="px-6 pb-5 pt-3 flex items-center gap-3">
+          <div className="flex-1 bg-white border border-brand-orange rounded-[16px] flex items-center px-5 h-14">
+            <input value={input} onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Type your message..."
+              className="flex-1 border-none outline-none bg-transparent font-sans text-lg text-brand-text placeholder:text-brand-muted" />
+          </div>
+          <button onClick={() => handleSend()}
+            className="w-14 h-14 bg-brand-orange hover:bg-brand-orange-dark rounded-full flex items-center justify-center shrink-0 transition-colors border-none cursor-pointer">
+            <svg width="24" height="24" viewBox="0 0 26 26" fill="none">
+              <path d="M3 13L23 4L14 23L12 14L3 13Z" fill="white"/>
+            </svg>
+          </button>
+        </div>
+
+      </main>
     </div>
   );
 }

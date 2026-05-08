@@ -46,14 +46,14 @@ export default function RegisterPage() {
   `;
 
   return (
-    <div className="bg-[#FDF6F0] min-h-screen flex items-center justify-center p-[20px]" style={{ fontFamily: "'Fredoka', sans-serif" }}>
-      <div className="bg-white border border-[#E8956D] rounded-[20px] px-[44px] py-[32px] w-full max-w-[460px] shadow-[0_8px_32px_rgba(232,149,109,0.12)]">
-        <div className="text-[36px] text-[#E8956D] text-center mb-[2px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Kiddio</div>
-        <p className="text-[15px] text-[#9E7E7A] text-center mb-[24px]">Make a new account and start your parenting journey with us!</p>
+    <div className="bg-brand-bg min-h-screen flex items-center justify-center p-5" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+      <div className="bg-white border border-brand-orange rounded-pill px-11 py-8 w-full max-w-115 shadow-[0_8px_32px_rgba(232,149,109,0.12)]">
+        <div className="text-[36px] text-brand-orange text-center mb-0.5" style={{ fontFamily: "'Fredoka One', cursive" }}>Kiddio</div>
+        <p className="text-[15px] text-brand-muted text-center mb-6">Make a new account and start your parenting journey with us!</p>
 
-        <form onSubmit={handleRegister} className="flex flex-col gap-[14px]">
+        <form onSubmit={handleRegister} className="flex flex-col gap-3.5">
           <div>
-            <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Username</label>
+            <label className="text-[16px] text-brand-text block mb-1.25" style={{ fontFamily: "'Fredoka One', cursive" }}>Username</label>
             <input
               type="text"
               placeholder="Your username"
@@ -66,7 +66,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Email</label>
+            <label className="text-[16px] text-brand-text block mb-1.25" style={{ fontFamily: "'Fredoka One', cursive" }}>Email</label>
             <input
               type="email"
               placeholder="example@gmail.com"
@@ -79,7 +79,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[16px] text-[#3D2C2C] block mb-[5px]" style={{ fontFamily: "'Fredoka One', cursive" }}>Password</label>
+            <label className="text-[16px] text-brand-text block mb-1.25" style={{ fontFamily: "'Fredoka One', cursive" }}>Password</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -93,7 +93,7 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="bg-[#FFE5E5] border border-[#ffcccc] rounded-[10px] px-[14px] py-[10px] text-[#CC0000] text-[14px] text-center">
+            <div className="bg-[#FFE5E5] border border-[#ffcccc] rounded-[10px] px-3.5 py-2.5 text-[#CC0000] text-[14px] text-center">
               {error}
             </div>
           )}
@@ -101,15 +101,15 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#E8956D] !text-white text-[18px] border-none rounded-[14px] py-[14px] mt-[4px] cursor-pointer transition-all duration-200 shadow-[0_4px_0px_#c9714d] hover:-translate-y-[2px] hover:shadow-[0_6px_0px_#c9714d] active:translate-y-[2px] active:shadow-[0_2px_0px_#c9714d] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-brand-orange text-white! text-[18px] border-none rounded-[14px] py-3.5 mt-1 cursor-pointer transition-all duration-200 shadow-[0_4px_0px_#c9714d] hover:-translate-y-0.5 hover:shadow-[0_6px_0px_#c9714d] active:translate-y-0.5 active:shadow-[0_2px_0px_#c9714d] disabled:opacity-70 disabled:cursor-not-allowed"
             style={{ fontFamily: "'Fredoka One', cursive" }}
           >
             {loading ? "Loading..." : "Sign Up"}
           </button>
         </form>
 
-        <p className="text-[15px] text-[#3D2C2C] text-center mt-[18px]">
-          Already have an account? <Link href="/login" className="text-[#E8956D] no-underline font-bold" style={{ fontFamily: "'Fredoka One', cursive" }}>Login</Link>
+        <p className="text-[15px] text-brand-text text-center mt-4.5">
+          Already have an account? <Link href="/login" className="text-brand-orange no-underline font-bold" style={{ fontFamily: "'Fredoka One', cursive" }}>Login</Link>
         </p>
       </div>
     </div>
