@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
 
         if (!userId) {
             return NextResponse.json(
-                { message: "login dl"},
-                { status: 400 },
+                { error: "tidak dikenal, login dulu"},
+                { status: 401 }
             );
         }
 
@@ -18,26 +18,46 @@ export async function POST(request: NextRequest) {
 
         const chat = await prisma.chat.create({
             data: {
-                title: title || "Chat Baru",
+                title: title || "Chat baru",
                 userId,
             },
         });
 
-        //test
-        return NextResponse.json(
-            {
-                message: "chat has been loaded",
-                chat: {
-                    id: chat.id,
-                    name: chat.title,
-                }
-            }
-        )
+        return NextResponse.json({
+            message: "chat sudah dibuat",
+            chat,
+        });
 
     } catch (error) {
         return NextResponse.json(
-            { message: "Internal server error"},
-            { status: 400 },
+            { error: "terjadi kesalahan server"},
+            { status: 500 }
+        );
+    }
+}
+
+export async function GET(request: NextRequest) {
+    try {
+        const userId = getUserIdFromRequest(request);
+        
+        if (!userId) {
+            return NextResponse.json(
+                { error: "tidak dikenal, login dulu"},
+                { status: 401 }
+            );
+        }
+
+        const chats = await prisma.chat.findMany({
+            where: {userId},
+            orderBy: { createdAt: "desc" }, //chat yg terbaru
+        });
+
+        return NextResponse.json({ chats });
+
+    } catch (error) {
+        return NextResponse.json(
+            { error: "terjadi kesalahan server" },
+            { status: 500 }
         );
     }
 }
