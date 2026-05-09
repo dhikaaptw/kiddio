@@ -44,7 +44,7 @@ export default function RegisterPage() {
       if (loginRes.ok) {
         localStorage.setItem("token", loginData.token);
         localStorage.setItem("user", JSON.stringify(loginData.user));
-        router.push("/home");
+        router.push("/onboarding");
       } else {
         router.push("/login");
       }
