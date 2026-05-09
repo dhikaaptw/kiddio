@@ -2,7 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { ChatIcon, HeartIcon, GrowthIcon, SmileIcon } from "@/components/icons";
+import {
+  MessageCircleMore,
+  Heart,
+  Sprout,
+  Smile,
+} from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -12,7 +17,6 @@ export default function LandingPage() {
     <div className="bg-[# FDF6F0] min-h-screen w-full overflow-x-hidden">
 
       <Navbar />
-
       <section className="flex items-center min-h-screen max-w-360 mx-auto px-20 md:px-35 pt-20 overflow-hidden">
         <div className="flex-[0_0_480px] z-1">
           <h1 className="text-[58px] leading-[1.1] text-brand-text mb-5" style={{ fontFamily: "'Fredoka One', cursive" }}>
@@ -35,17 +39,32 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
       <section id="features" className="px-15 py-15 max-w-360 mx-auto">
         <h2 className="text-[30px] text-brand-text text-center mb-3" style={{ fontFamily: "'Fredoka One', cursive" }}>What Kiddio can do</h2>
         <p className="text-[16px] text-brand-text text-center mb-9" style={{ fontFamily: "'Fredoka', sans-serif" }}>Smart, caring support for every stage of your parenting journey.</p>
 
         <div className="grid grid-cols-4 gap-5">
           {[
-            { icon: <ChatIcon />, title: "Parenting Q&A", desc: "Get instant answer to your parenting questions." },
-            { icon: <HeartIcon />, title: "Personalized Advice", desc: "Advice tailored to your child's needs." },
-            { icon: <GrowthIcon />, title: "Growth Tracking", desc: "Track milestones and development." },
-            { icon: <SmileIcon />, title: "Emotional Support", desc: "A supportive companion for your parenting journey." }
+            {
+              icon: <MessageCircleMore className="w-12 h-12 stroke-[1.8]" />,
+              title: "Parenting Q&A",
+              desc: "Get instant answer to your parenting questions."
+            },
+            {
+              icon: <Heart className="w-12 h-12 stroke-[1.8]" />,
+              title: "Personalized Advice",
+              desc: "Advice tailored to your child's needs."
+            },
+            {
+              icon: <Sprout className="w-12 h-12 stroke-[1.8]" />,
+              title: "Growth Tracking",
+              desc: "Track milestones and development."
+            },
+            {
+              icon: <Smile className="w-12 h-12 stroke-[1.8]" />,
+              title: "Emotional Support",
+              desc: "A supportive companion for your parenting journey."
+            }
           ].map((f, i) => (
             <div key={i} className="bg-brand-card rounded-[14px] px-4.5 py-6 flex flex-col items-center text-center gap-2.5 transition-all duration-250 border-2 border-transparent hover:border-brand-orange hover:-translate-y-1.25 hover:shadow-[0_10px_24px_rgba(232,149,109,0.2)]">
               <div className="w-9 h-9 text-brand-orange">{f.icon}</div>
@@ -56,7 +75,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="px-15 pb-15 max-w-360 mx-auto">
         <div className="bg-brand-peach rounded-[16px] px-15 py-10 flex items-center justify-between relative overflow-hidden">
           <div className="absolute bg-white/30 rounded-full" style={{ width: '160px', height: '160px', left: '-30px', bottom: '-40px', zIndex: 0 }} />
@@ -82,7 +100,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="bg-brand-card py-12 relative overflow-hidden">
 
         <img

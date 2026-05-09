@@ -62,7 +62,7 @@ export default function LoginPage() {
     <div className="bg-brand-bg min-h-screen flex items-center justify-center p-5" style={{ fontFamily: "'Fredoka', sans-serif" }}>
       <div className="bg-white border border-brand-orange rounded-pill px-11 py-8 w-full max-w-115 shadow-[0_8px_32px_rgba(232,149,109,0.12)]">
         <div className="text-[36px] text-brand-orange text-center mb-0.5]" style={{ fontFamily: "'Fredoka One', cursive" }}>Kiddio</div>
-        <p className="text-[15px] text-brand-muted text-center mb-6">Welcome back, Parents! 👋</p>
+        <p className="text-[15px] text-brand-muted text-center mb-6">Welcome back, Parents!</p>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-3.5">
           <div>

@@ -3,6 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import {
+  Bot,
+  User,
+  MessageCircle,
+  Settings,
+  Send,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
 
 type Message = { role: "user" | "ai"; text: string };
 type Chat = { id: string; title: string; messages: Message[] };
@@ -11,19 +22,13 @@ const QUICK_TOPICS = ["Sleep Tips", "Feeding & Nutrition", "Health", "Behavior &
 
 const AiAvatar = () => (
   <div className="w-9 h-9 rounded-full bg-brand-peach flex items-center justify-center shrink-0 mt-1">
-    <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="9" fill="#E8956D" opacity="0.2"/>
-      <path d="M6 8h10M6 11h10M6 14h6" stroke="#E8956D" strokeWidth="1.8" strokeLinecap="round"/>
-    </svg>
+    <Bot size={20} color="#E8956D" strokeWidth={2} />
   </div>
 );
 
 const UserAvatar = () => (
   <div className="w-9 h-9 rounded-full bg-brand-peach flex items-center justify-center shrink-0 mt-1">
-    <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="8" r="4" fill="#E8956D"/>
-      <path d="M3 19C3 15.5 6.5 13 11 13C15.5 13 19 15.5 19 19" stroke="#E8956D" strokeWidth="1.8" strokeLinecap="round"/>
-    </svg>
+    <User size={20} color="#E8956D" strokeWidth={2} />
   </div>
 );
 
@@ -48,24 +53,23 @@ function ChatBubble({ msg }: { msg: Message }) {
   return (
     <div className={`flex items-start gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && <AiAvatar />}
-      <div className={`max-w-[60%] px-4 py-3 text-brand-text leading-relaxed whitespace-pre-line text-base wrap-break-word min-w-0 ${
-        isUser
-          ? "bg-brand-peach rounded-[16px_4px_16px_16px]"
-          : "bg-brand-card border border-brand-peach rounded-[4px_16px_16px_16px]"
-      }`}>
+      <div className={`max-w-[60%] px-4 py-3 text-brand-text leading-relaxed whitespace-pre-line text-base wrap-break-word min-w-0 ${isUser
+        ? "bg-brand-peach rounded-[16px_4px_16px_16px]"
+        : "bg-brand-card border border-brand-peach rounded-[4px_16px_16px_16px]"
+        }`}>
         {isUser ? (
           <p>{msg.text}</p>
         ) : (
           <ReactMarkdown
             components={{
-                strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-                em: ({ children }) => <em className="italic">{children}</em>,
-                ul: ({ children }) => <ul className="list-disc pl-4 mt-1">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal pl-4 mt-1">{children}</ol>,
-                li: ({ children }) => <li className="mb-1">{children}</li>,
-                p: ({ children }) => <p className="mb-2 last:">{children}</p>,
-              }}
-            >
+              strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+              em: ({ children }) => <em className="italic">{children}</em>,
+              ul: ({ children }) => <ul className="list-disc pl-4 mt-1">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal pl-4 mt-1">{children}</ol>,
+              li: ({ children }) => <li className="mb-1">{children}</li>,
+              p: ({ children }) => <p className="mb-2 last:">{children}</p>,
+            }}
+          >
             {msg.text}
           </ReactMarkdown>
         )}
@@ -81,28 +85,29 @@ function ChatItem({ chat, active, onSelect, onDelete }: {
   const [open, setOpen] = useState(false);
   return (
     <div onClick={onSelect}
-      className={`flex items-center justify-between rounded-[16px] px-4 py-3 cursor-pointer transition-colors ${
-        active ? "bg-brand-peach" : "bg-brand-card border border-brand-peach hover:bg-brand-peach/50"
-      }`}>
+      className={`flex items-center justify-between rounded-[16px] px-4 py-3 cursor-pointer transition-colors ${active ? "bg-brand-peach" : "bg-brand-card border border-brand-peach hover:bg-brand-peach/50"
+        }`}>
       <div className="flex items-center gap-3">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H10L4 28V6Z" stroke="#3D2C2C" strokeWidth="1.8"/>
-          <circle cx="11" cy="13" r="1.2" fill="#3D2C2C"/>
-          <circle cx="16" cy="13" r="1.2" fill="#3D2C2C"/>
-          <circle cx="21" cy="13" r="1.2" fill="#3D2C2C"/>
-        </svg>
+        <MessageCircle
+          size={28}
+          color="#3D2C2C"
+          strokeWidth={1.8}
+        />
         <span className="text-lg text-brand-text truncate max-w-32.5">{chat.title}</span>
       </div>
       <div className="relative" onClick={(e) => e.stopPropagation()}>
         <button onClick={() => setOpen(!open)}
           className="bg-transparent border-none cursor-pointer px-1 text-brand-text text-xl hover:text-brand-orange">
-          ⋯
+          <MoreHorizontal size={22} />
         </button>
         {open && (
           <div className="absolute right-0 top-8 bg-brand-bg border border-brand-orange rounded-[16px] py-2 z-50 min-w-32.5 shadow-lg">
             <button onClick={() => { onDelete(); setOpen(false); }}
               className="w-full bg-transparent border-none cursor-pointer px-4 py-2 flex items-center gap-2 text-red-500 text-base hover:bg-red-50">
-              Delete
+              <>
+                <Trash2 size={18} />
+                Delete
+              </>
             </button>
           </div>
         )}
@@ -160,10 +165,12 @@ export default function ChatPage() {
 
     if (data.messages) {
       setChats((prev) => prev.map((c) => c.id === chatId
-        ? { ...c, messages: data.messages.map((m: any) => ({
+        ? {
+          ...c, messages: data.messages.map((m: any) => ({
             role: m.role === "user" ? "user" : "ai",
             text: m.content,
-          })) }
+          }))
+        }
         : c
       ));
     }
@@ -221,8 +228,10 @@ export default function ChatPage() {
     const token = localStorage.getItem("token")!;
 
     setChats((prev) => prev.map((c) => c.id === activeChatId
-      ? { ...c, messages: [...c.messages, { role: "user", text: msg }],
-          title: c.title === "New Chat" ? msg.slice(0, 30) : c.title }
+      ? {
+        ...c, messages: [...c.messages, { role: "user", text: msg }],
+        title: c.title === "New Chat" ? msg.slice(0, 30) : c.title
+      }
       : c
     ));
     setInput("");
@@ -251,12 +260,11 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-brand-bg font-sans">
 
-      {/* ── SIDEBAR ── */}
       {sidebarOpen && (
         <aside className="flex flex-col shrink-0 w-72 bg-brand-bg border-r border-brand-border px-4 py-6 relative">
           <button onClick={() => setSidebarOpen(false)}
             className="absolute top-6 right-4 w-11 h-11 bg-brand-peach rounded-full flex items-center justify-center text-xl text-brand-text hover:bg-brand-orange hover:text-white transition-colors cursor-pointer border-none">
-            ‹
+            <ChevronLeft size={24} />
           </button>
 
           <h2 className="font-display text-3xl text-brand-text mb-5 mt-1">Chat History</h2>
@@ -280,22 +288,22 @@ export default function ChatPage() {
             <button onClick={() => router.push("/settings")} title="Settings"
               className="w-14 h-14 rounded-btn flex items-center justify-center shrink-0 transition-colors cursor-pointer border-none hover:bg-brand-peach"
               style={{ background: "var(--color-brand-card)", border: "1.5px solid var(--color-brand-orange)" }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
+              <Settings
+                size={24}
+                strokeWidth={1.8}
+                color="var(--color-brand-text)"
+              />
             </button>
           </div>
         </aside>
       )}
 
-      {/* ── MAIN ── */}
       <main className="flex flex-col flex-1 overflow-hidden">
         <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-peach flex-wrap">
           {!sidebarOpen && (
             <button onClick={() => setSidebarOpen(true)}
               className="w-11 h-11 bg-brand-peach rounded-full flex items-center justify-center text-xl text-brand-text hover:bg-brand-orange hover:text-white transition-colors shrink-0 border-none cursor-pointer">
-              ›
+              <ChevronRight size={24} />
             </button>
           )}
           <div className="flex gap-2 flex-wrap flex-1">
@@ -307,10 +315,7 @@ export default function ChatPage() {
             ))}
           </div>
           <div className="w-10 h-10 rounded-full bg-brand-peach flex items-center justify-center shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="4" fill="#E8956D"/>
-              <path d="M4 20C4 16.686 7.582 14 12 14C16.418 14 20 16.686 20 20" stroke="#E8956D" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
+            <User size={22} color="#E8956D" strokeWidth={2} />
           </div>
         </div>
 
@@ -335,9 +340,7 @@ export default function ChatPage() {
           </div>
           <button onClick={() => handleSend()}
             className="w-14 h-14 bg-brand-orange hover:bg-brand-orange-dark rounded-full flex items-center justify-center shrink-0 transition-colors border-none cursor-pointer">
-            <svg width="24" height="24" viewBox="0 0 26 26" fill="none">
-              <path d="M3 13L23 4L14 23L12 14L3 13Z" fill="white"/>
-            </svg>
+            <Send size={22} color="white" fill="white" />
           </button>
         </div>
       </main>

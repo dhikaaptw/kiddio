@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  User,
+  MessageCircle,
+  LogOut,
+  Trash2,
+  ArrowLeft,
+} from "lucide-react";
 
 type AIPref = "Casual" | "Empathetic" | "Precise";
 interface ChildProfile { id: string; name: string; years: number; months: number }
@@ -40,28 +47,6 @@ function formatAge(years: number, months: number) {
   return parts.length ? parts.join(" ") : "Newborn";
 }
 
-const ProfileIcon = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-  </svg>
-);
-const ChatIcon = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
-const TrashIcon = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-    <path d="M10 11v6M14 11v6M9 6V4h6v2" />
-  </svg>
-);
-const BackIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 12H5M12 5l-7 7 7 7" />
-  </svg>
-);
 
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
   if (!open) return null;
@@ -307,6 +292,11 @@ export default function SettingsPage() {
     loadData();
   }, [router]);
 
+  const handleLogout = () => {
+    localStorage.clear();
+    router.push("/");
+  };
+
   const handleDeleteAccount = async () => {
     setDeleting(true);
     try {
@@ -343,7 +333,7 @@ export default function SettingsPage() {
           <button onClick={() => router.push("/chat")}
             className="flex items-center gap-2 px-4 py-2 rounded-2xl cursor-pointer transition-colors hover:bg-brand-peach"
             style={{ border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-card)", fontFamily: "'Fredoka', sans-serif", fontSize: 15, color: "var(--color-brand-text)" }}>
-            <BackIcon />
+            <ArrowLeft size={20} strokeWidth={2} />
             Back to Chat
           </button>
         </div>
@@ -365,7 +355,7 @@ export default function SettingsPage() {
 
           <SettingCard title="Child Profile" onEdit={profile.id ? () => setModalChild(true) : undefined}>
             <div className="flex items-center gap-3">
-              <IconCircle><ProfileIcon /></IconCircle>
+              <IconCircle><User size={28} strokeWidth={1.8} color="var(--color-brand-text)" /></IconCircle>
               <div>
                 {profile.id ? (
                   <>
@@ -381,7 +371,7 @@ export default function SettingsPage() {
 
           <SettingCard title="AI Response Preference" onEdit={() => setModalAI(true)}>
             <div className="flex items-center gap-3">
-              <IconCircle><ChatIcon /></IconCircle>
+              <IconCircle><MessageCircle size={28} strokeWidth={1.8} color="var(--color-brand-text)" /></IconCircle>
               <div>
                 <div style={{ ...cs.title, fontSize: 16 }}>{currentAIPref.name}</div>
                 <div style={{ ...cs.muted, fontSize: 14 }}>{currentAIPref.desc}</div>
@@ -390,14 +380,29 @@ export default function SettingsPage() {
           </SettingCard>
 
           <SettingCard title="Account" fullWidth>
-            <div className="flex items-center gap-3">
-              <TrashIcon />
-              <div>
-                <button onClick={() => setModalDelete(true)}
-                  style={{ fontFamily: "'Fredoka One', cursive", fontSize: 17, color: "#FF0000", background: "none", border: "none", cursor: "pointer", padding: 0, display: "block", textAlign: "left" }}>
-                  Delete Account
-                </button>
-                <p style={{ ...cs.body, fontSize: 14, marginTop: 2 }}>Once you delete your account, all data will be permanently removed.</p>
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-3">
+                <IconCircle><LogOut size={28} strokeWidth={1.8} color="var(--color-brand-text)" /></IconCircle>
+                <div>
+                  <button onClick={handleLogout}
+                    style={{ fontFamily: "'Fredoka One', cursive", fontSize: 17, color: "var(--color-brand-text)", background: "none", border: "none", cursor: "pointer", padding: 0, display: "block", textAlign: "left" }}>
+                    Logout Account
+                  </button>
+                  <p style={{ ...cs.body, fontSize: 14, marginTop: 2 }}>Log out from your current session.</p>
+                </div>
+              </div>
+
+              <div style={{ height: "1.5px", background: "var(--color-brand-border)", opacity: 0.5 }} />
+
+              <div className="flex items-center gap-3">
+                <IconCircle><Trash2 size={28} strokeWidth={1.8} color="#FF0000" /></IconCircle  >
+                <div>
+                  <button onClick={() => setModalDelete(true)}
+                    style={{ fontFamily: "'Fredoka One', cursive", fontSize: 17, color: "#FF0000", background: "none", border: "none", cursor: "pointer", padding: 0, display: "block", textAlign: "left" }}>
+                    Delete Account
+                  </button>
+                  <p style={{ ...cs.body, fontSize: 14, marginTop: 2 }}>Once you delete your account, all data will be permanently removed.</p>
+                </div>
               </div>
             </div>
           </SettingCard>
