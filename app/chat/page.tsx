@@ -150,7 +150,13 @@ export default function ChatPage() {
     const res = await fetch(`/api/chats/${chatId}/messages`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const data = await res.json();
+
+    if (!res.ok) return;
+
+    const text = await res.text();
+    if (!text) return;
+
+    const data = JSON.parse(text);
 
     if (data.messages) {
       setChats((prev) => prev.map((c) => c.id === chatId
