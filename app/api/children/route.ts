@@ -14,9 +14,9 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { name, age, aiStyle } = body;
+        const { name, ageYears, ageMonths, aiStyle } = body;
 
-        if (!name || !age) {
+        if (!name || ageYears === undefined || ageMonths === undefined) {
             return NextResponse.json(
                 { error: "Nama & umur diisi dulu bg"},
                 { status: 400 }
@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
         const child = await prisma.child.create({
             data: {
                 name,
-                age,
+                ageYears,
+                ageMonths,
                 userId,
             },
         });
