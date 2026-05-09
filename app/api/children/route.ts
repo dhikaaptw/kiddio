@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
         const child = await prisma.child.create({
             data: {
                 name,
-                ageYears,
-                ageMonths,
+                ageYears: Number(ageYears), 
+                ageMonths: Number(ageMonths),
                 userId,
             },
         });
