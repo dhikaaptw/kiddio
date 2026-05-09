@@ -215,6 +215,7 @@ export default function ChatPage() {
 
   const handleSend = async (text?: string) => {
     const msg = (text ?? input).trim();
+    console.log("msg:", msg, "activeChatId:", activeChatId); //debug
     if (!msg || !activeChatId) return;
 
     const token = localStorage.getItem("token")!;
