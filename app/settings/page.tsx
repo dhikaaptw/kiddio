@@ -20,12 +20,14 @@ const cs = {
 };
 
 const btnBase: React.CSSProperties = { fontFamily: "'Fredoka', sans-serif", fontSize: 16, cursor: "pointer" };
+
 const CancelBtn = ({ onClick }: { onClick: () => void }) => (
   <button onClick={onClick} className="flex-1 h-11 rounded-2xl"
     style={{ ...btnBase, border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-bg)", color: "var(--color-brand-text)" }}>
     Cancel
   </button>
 );
+
 const SaveBtn = ({ onClick, label = "Save Changes", disabled = false }: { onClick: () => void; label?: string; disabled?: boolean }) => (
   <button onClick={onClick} disabled={disabled} className="flex-1 h-11 rounded-2xl"
     style={{ ...btnBase, background: "var(--color-brand-orange)", border: "none", color: "#fff", opacity: disabled ? 0.7 : 1 }}>
@@ -85,7 +87,6 @@ function ChildProfileModal({ open, onClose, profile, onSave }: {
   const [months, setMonths] = useState(profile.months);
   const [saving, setSaving] = useState(false);
 
-  // Sync state ketika profile berubah (data dari API masuk)
   useEffect(() => {
     setName(profile.name);
     setYears(profile.years);
@@ -129,13 +130,11 @@ function ChildProfileModal({ open, onClose, profile, onSave }: {
       style={{ background: "var(--color-brand-peach)", border: "1.5px solid var(--color-brand-orange)" }}>
       <span style={{ ...cs.muted, fontSize: 13 }}>{label}</span>
       <div className="flex items-center gap-2">
-        {[["−", -1], ["+", 1]].map(([sym, delta], i) => i === 0
-          ? <button key={sym as string} onClick={() => change(delta as number)} className="w-8 h-8 rounded-lg flex items-center justify-center text-lg cursor-pointer"
-            style={{ border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-bg)", color: "var(--color-brand-text)", fontFamily: "'Fredoka One', cursive" }}>{sym}</button>
-          : [<span key="val" style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "var(--color-brand-text)", minWidth: 28, textAlign: "center" }}>{value}</span>,
-          <button key={sym as string} onClick={() => change(delta as number)} className="w-8 h-8 rounded-lg flex items-center justify-center text-lg cursor-pointer"
-            style={{ border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-bg)", color: "var(--color-brand-text)", fontFamily: "'Fredoka One', cursive" }}>{sym}</button>]
-        )}
+        <button onClick={() => change(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center text-lg cursor-pointer"
+          style={{ border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-bg)", color: "var(--color-brand-text)", fontFamily: "'Fredoka One', cursive" }}>−</button>
+        <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "var(--color-brand-text)", minWidth: 28, textAlign: "center" }}>{value}</span>
+        <button onClick={() => change(1)} className="w-8 h-8 rounded-lg flex items-center justify-center text-lg cursor-pointer"
+          style={{ border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-bg)", color: "var(--color-brand-text)", fontFamily: "'Fredoka One', cursive" }}>+</button>
       </div>
     </div>
   );
@@ -159,7 +158,6 @@ function ChildProfileModal({ open, onClose, profile, onSave }: {
           <Counter label="Years" value={years} change={changeYears} />
           <Counter label="Months" value={months} change={changeMonths} />
         </div>
-        <p style={{ ...cs.muted, fontSize: 12, marginTop: 6 }}>0 months – 5 years</p>
       </div>
       <div className="flex gap-3">
         <CancelBtn onClick={onClose} />
@@ -190,12 +188,6 @@ function AIPrefModal({ open, onClose, current, onSave }: {
         body: JSON.stringify({ aiStyle: selected }),
       });
       if (res.ok) {
-        // Update localStorage juga
-        const stored = localStorage.getItem("user");
-        if (stored) {
-          const u = JSON.parse(stored);
-          localStorage.setItem("user", JSON.stringify({ ...u, aiStyle: selected }));
-        }
         onSave(selected);
         onClose();
       }
@@ -228,8 +220,8 @@ function AIPrefModal({ open, onClose, current, onSave }: {
   );
 }
 
-function DeleteModal({ open, onClose, onConfirm, deleting }: {
-  open: boolean; onClose: () => void; onConfirm: () => void; deleting: boolean;
+function DeleteModal({ open, onClose, onDelete }: {
+  open: boolean; onClose: () => void; onDelete: () => void;
 }) {
   return (
     <Modal open={open} onClose={onClose}>
@@ -237,18 +229,12 @@ function DeleteModal({ open, onClose, onConfirm, deleting }: {
       <p style={{ ...cs.body, fontSize: 15, marginBottom: 16 }}>This action cannot be undone.</p>
       <div className="rounded-xl p-4 mb-5" style={{ background: "#fff0f0", border: "1.5px solid #ffb3b3" }}>
         <p style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 14, color: "#a32d2d", lineHeight: 1.6 }}>
-          Once you delete your account, all your data — including your child profile, chat history, and preferences — will be permanently removed. You will not be able to recover this information.
+          Once you delete your account, all your data — including your child profile, chat history, and preferences — will be permanently removed.
         </p>
       </div>
       <div className="flex gap-3">
         <CancelBtn onClick={onClose} />
-        <button
-          onClick={onConfirm}
-          disabled={deleting}
-          className="flex-1 h-11 rounded-2xl"
-          style={{ ...btnBase, background: "#e53e3e", border: "none", color: "#fff", opacity: deleting ? 0.7 : 1 }}>
-          {deleting ? "Deleting..." : "Yes, Delete"}
-        </button>
+        <SaveBtn onClick={onDelete} label="Yes, Delete" />
       </div>
     </Modal>
   );
@@ -280,17 +266,16 @@ function IconCircle({ children }: { children: React.ReactNode }) {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<ChildProfile>({ name: "", years: 0, months: 0 });
-  const [childId, setChildId] = useState<string | null>(null);
-  const [aiPref, setAIPref] = useState<AIPref>("Casual");
+  const [profile, setProfile] = useState<ChildProfile>({ id: "", name: "", years: 0, months: 0 });
+  const [aiPref, setAIPref] = useState<AIPref>("Empathetic");
   const [modalChild, setModalChild] = useState(false);
   const [modalAI, setModalAI] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
-  // Load data dari API saat halaman dibuka
   useEffect(() => {
-    const fetchUser = async () => {
+    const loadData = async () => {
       const token = localStorage.getItem("token");
       if (!token) { router.push("/login"); return; }
 
@@ -303,11 +288,9 @@ export default function SettingsPage() {
         const data = await res.json();
         const user = data.user;
 
-        // Set AI preference dari user data
         if (user.aiStyle) setAIPref(user.aiStyle as AIPref);
 
-        // Set child profile (ambil anak pertama)
-        if (user.children && user.children.length > 0) {
+        if (user.children?.length > 0) {
           const child = user.children[0];
           setProfile({
             id: child.id,
@@ -317,31 +300,23 @@ export default function SettingsPage() {
           });
         }
       } catch {
-        // error handling silent
       } finally {
         setLoading(false);
       }
     };
-
-    fetchUser();
+    loadData();
   }, [router]);
 
-  // Hapus akun
   const handleDeleteAccount = async () => {
     setDeleting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/users", {
+      await fetch("/api/users", {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (res.ok) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("onboardingComplete");
-        router.push("/login");
-      }
+      localStorage.clear();
+      router.push("/");
     } finally {
       setDeleting(false);
       setModalDelete(false);
@@ -358,61 +333,6 @@ export default function SettingsPage() {
     );
   }
 
-  useEffect(() => {
-    const loadData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      const userRes = await fetch("/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const userData = await userRes.json();
-      if (userData.user) {
-        setAIPref(userData.user.aistyle as AIPref);
-
-        if (userData.user.children?.length > 0) {
-          const child = userData.user.children[0];
-          setChildId(child.id);
-          setProfile({
-            name: child.name,
-            years: child.ageYears,
-            months: child.ageMonths,
-          });
-        }
-      }
-    };
-    loadData();
-  }, []);
-
-  const handleSaveAi = async (pref: AIPref) => {
-    const token = localStorage.getItem("token");
-    await fetch("/api/users", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ aiStyle: pref }),
-    });
-    setAIPref(pref);
-  }
-
-  const handleDeleteAccount = async () => {
-    const token = localStorage.getItem("token");
-    await fetch("/api/users", {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    localStorage.clear;
-    router.push("/");
-  }
-
   return (
     <div className="min-h-screen" style={{ background: "var(--color-brand-bg)" }}>
       <div className="max-w-4xl mx-auto px-5 py-8">
@@ -420,14 +340,9 @@ export default function SettingsPage() {
           <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 42, color: "var(--color-brand-orange)", lineHeight: 1 }}>
             Kiddio
           </div>
-          <button
-            onClick={() => router.push("/chat")}
+          <button onClick={() => router.push("/chat")}
             className="flex items-center gap-2 px-4 py-2 rounded-2xl cursor-pointer transition-colors hover:bg-brand-peach"
-            style={{
-              border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-card)",
-              fontFamily: "'Fredoka', sans-serif", fontSize: 15, color: "var(--color-brand-text)"
-            }}
-          >
+            style={{ border: "1.5px solid var(--color-brand-orange)", background: "var(--color-brand-card)", fontFamily: "'Fredoka', sans-serif", fontSize: 15, color: "var(--color-brand-text)" }}>
             <BackIcon />
             Back to Chat
           </button>
@@ -438,21 +353,17 @@ export default function SettingsPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
           <SettingCard title="About Kiddio">
             <p style={{ ...cs.body, fontSize: 15 }}>Kiddio is your AI companion for parenting support, guidance, and information.</p>
           </SettingCard>
 
           <SettingCard title="Disclaimer">
             <p style={{ ...cs.body, fontSize: 15 }}>
-              Kiddio provides general information and support for parenting and childcare. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for concerns about your child&apos;s health.
+              Kiddio provides general information and support for parenting and childcare. It is not a substitute for professional medical advice, diagnosis, or treatment.
             </p>
           </SettingCard>
 
-          <SettingCard
-            title="Child Profile"
-            onEdit={profile.id ? () => setModalChild(true) : undefined}
-          >
+          <SettingCard title="Child Profile" onEdit={profile.id ? () => setModalChild(true) : undefined}>
             <div className="flex items-center gap-3">
               <IconCircle><ProfileIcon /></IconCircle>
               <div>
@@ -490,17 +401,11 @@ export default function SettingsPage() {
               </div>
             </div>
           </SettingCard>
-
         </div>
       </div>
 
       {profile.id && (
-        <ChildProfileModal
-          open={modalChild}
-          onClose={() => setModalChild(false)}
-          profile={profile}
-          onSave={setProfile}
-        />
+        <ChildProfileModal open={modalChild} onClose={() => setModalChild(false)} profile={profile} onSave={setProfile} />
       )}
       <AIPrefModal open={modalAI} onClose={() => setModalAI(false)} current={aiPref} onSave={setAIPref} />
       <DeleteModal open={modalDelete} onClose={() => setModalDelete(false)} onDelete={handleDeleteAccount} />
