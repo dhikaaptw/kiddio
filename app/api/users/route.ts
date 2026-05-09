@@ -82,3 +82,43 @@ export async function PUT(request: NextRequest) {
         );
     }
 }
+
+export async function DELETE(request: NextRequest) {
+    try {
+        const userId = getUserIdFromRequest(request);
+
+        if (!userId) {
+            return NextResponse.json(
+                { error: "tidak dikenal, login dulu" },
+                { status: 401 }
+            );
+        }
+
+        
+        await prisma.message.deleteMany({
+            where: { id: userId },
+        });
+        
+        await prisma.chat.deleteMany({
+            where: { id: userId },
+        });
+
+        await prisma.child.deleteMany({
+            where: { id: userId },
+        });
+
+        await prisma.user.deleteMany({
+            where: { id: userId },
+        });
+
+        return NextResponse.json({
+            message: "akun sudah dihapus bang",
+        });
+
+    } catch (error) {
+        return NextResponse.json(
+            { error: "terjadi kesalahan server" },
+            { status: 500 }
+        );
+    }
+}
