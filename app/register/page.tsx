@@ -41,10 +41,10 @@ export default function RegisterPage() {
 
       const loginData = await loginRes.json();
 
-      if (!loginRes.ok) {
-        localStorage.setItem("token", data.token);
+      if (loginRes.ok) {
+        localStorage.setItem("token", loginData.token);
         localStorage.setItem("user", JSON.stringify(loginData.user));
-        router.push("/onboarding");
+        router.push("/home");
       } else {
         router.push("/login");
       }
