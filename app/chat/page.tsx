@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "ai"; text: string };
 type Chat = { id: string; title: string; messages: Message[] };
@@ -52,7 +53,22 @@ function ChatBubble({ msg }: { msg: Message }) {
           ? "bg-brand-peach rounded-[16px_4px_16px_16px]"
           : "bg-brand-card border border-brand-peach rounded-[4px_16px_16px_16px]"
       }`}>
-        {msg.text}
+        {isUser ? (
+          <p>{msg.text}</p>
+        ) : (
+          <ReactMarkdown
+            components={{
+                strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                em: ({ children }) => <em className="italic">{children}</em>,
+                ul: ({ children }) => <ul className="list-disc pl-4 mt-1">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal pl-4 mt-1">{children}</ol>,
+                li: ({ children }) => <li className="mb-1">{children}</li>,
+                p: ({ children }) => <p className="mb-2 last: mb-0">{children}</p>,
+              }}
+            >
+            {msg.text}
+          </ReactMarkdown>
+        )}
       </div>
       {isUser && <UserAvatar />}
     </div>
