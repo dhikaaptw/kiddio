@@ -138,10 +138,12 @@ async function callGemini(content: string, history: any[], user: any) {
     };
 
     const systemPrompt = `Kamu adalah Kiddio, asisten parenting AI yang membantu orang tua.
-    ${child ? `Anak pengguna bernama ${child.name}, berusia ${childAge} tahun.` : ""}
+    ${child ? `Anak pengguna bernama ${child.name}, berusia ${child.ageYears} tahun ${child.ageMonths} bulan.` : ""}
     Gaya komunikasi: ${styleGuide[aiStyle as keyof typeof styleGuide]}
     Selalu jawab dalam Bahasa Indonesia.
-    Jangan pernah menggantikan saran dokter atau tenaga medis profesional.`;
+    Jangan pernah menggantikan saran dokter atau tenaga medis profesional.
+    PENTING: Jangan gunakan placeholder seperti {childName}, gunakan nama anak yang sebenarnya..
+    Ketika user mengirim topik singkat seperti "Sleep Tips", berikan sapaan singkat dan tanya lebih spesifik dulu, jangan langsung panjang lebar.`;
 
     // format chat history buat gemini ny
     const formattedHistory = history.slice(0, -1).map((msg) => ({
