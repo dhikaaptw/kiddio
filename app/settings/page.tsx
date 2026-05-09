@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type AIPref = "Casual" | "Empathetic" | "Precise";
@@ -165,7 +165,11 @@ function AIPrefModal({ open, onClose, current, onSave }: {
   );
 }
 
-function DeleteModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function DeleteModal({ open, onClose, onDelete }: { 
+  open: boolean; 
+  onClose: () => void;
+  onDelete: () => void;
+}) {
   return (
     <Modal open={open} onClose={onClose}>
       <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#FF0000", marginBottom: 4 }}>Delete Account?</div>
@@ -177,7 +181,7 @@ function DeleteModal({ open, onClose }: { open: boolean; onClose: () => void }) 
       </div>
       <div className="flex gap-3">
         <CancelBtn onClick={onClose} />
-        <SaveBtn onClick={onClose} label="Yes, Delete" />
+        <SaveBtn onClick={onDelete} label="Yes, Delete" />
       </div>
     </Modal>
   );
@@ -209,13 +213,69 @@ function IconCircle({ children }: { children: React.ReactNode }) {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<ChildProfile>({ name: "Anna", years: 3, months: 1 });
+  const [profile, setProfile] = useState<ChildProfile>({ name: "", years: 0, months: 0 });
+  const [childId, setChildId] = useState<string | null>(null);
   const [aiPref, setAIPref] = useState<AIPref>("Casual");
   const [modalChild, setModalChild] = useState(false);
   const [modalAI, setModalAI] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
 
   const currentAIPref = AI_PREFS.find((p) => p.name === aiPref)!;
+
+  useEffect(() => {
+    const loadData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      const userRes = await fetch("/api/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const userData = await userRes.json();
+      if (userData.user) {
+        setAIPref(userData.user.aistyle as AIPref);
+
+        if (userData.user.children?.length > 0) {
+          const child = userData.user.children[0];
+          setChildId(child.id);
+          setProfile({
+            name: child.name,
+            years: child.ageYears,
+            months: child.ageMonths,
+          });
+        }
+      }
+    };
+    loadData();
+  }, []);
+
+  const handleSaveAi = async (pref: AIPref) => {
+    const token = localStorage.getItem("token");
+    await fetch("/api/users", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ aiStyle: pref }),
+    });
+    setAIPref(pref);
+  }
+
+  const handleDeleteAccount = async () => {
+    const token = localStorage.getItem("token");
+    await fetch("/api/users", {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    localStorage.clear;
+    router.push("/");
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-brand-bg)" }}>
@@ -291,7 +351,7 @@ export default function SettingsPage() {
 
       <ChildProfileModal open={modalChild} onClose={() => setModalChild(false)} profile={profile} onSave={setProfile} />
       <AIPrefModal open={modalAI} onClose={() => setModalAI(false)} current={aiPref} onSave={setAIPref} />
-      <DeleteModal open={modalDelete} onClose={() => setModalDelete(false)} />
+      <DeleteModal open={modalDelete} onClose={() => setModalDelete(false)} onDelete={handleDeleteAccount} />
     </div>
   );
 }
