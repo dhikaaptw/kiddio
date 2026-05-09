@@ -76,6 +76,45 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 }
 
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params;
+        const userId = getUserIdFromRequest(request);
+
+        if (!userId) {
+            return NextResponse.json(
+                { error: "tidak dikenal, login dulu" },
+                { status: 401 }
+            );
+        }
+
+        const chat = await prisma.chat.findUnique({
+            where: { id: id },
+        });
+
+        if (!chat || chat.userId !== userId) {
+            return NextResponse.json(
+                { error: "chat not found" },
+                { status: 404}
+            );
+        }
+
+        const messages = await prisma.message.findMany({
+            where: { chatId: id },
+            orderBy: { createdAt: "asc" },
+        });
+
+        return NextResponse.json({ messages });
+    
+    } catch (error) {
+        console.error("Error:", error); //test doang biar tau errornya apa
+        return NextResponse.json(
+            { error: "internal server error" },
+            { status: 500 }
+        );
+    }
+}
+
 async function callGemini(content: string, history: any[], user: any) {
     const child = user?.children?.[0];
     const aiStyle = user?.aiStyle || "Emphatic";
