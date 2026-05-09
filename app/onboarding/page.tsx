@@ -43,10 +43,11 @@ function ToneCard({
     <button
       onClick={onSelect}
       className={`flex flex-col items-center justify-center gap-1.5 rounded-[16px] py-3 px-2 border transition w-full min-h-25
-      ${selected
+      ${
+        selected
           ? "bg-brand-orange text-white shadow-md border-brand-orange"
           : "bg-brand-peach border-brand-orange text-[#4A352F]"
-        }`}
+      }`}
     >
       <span className="text-[16px] font-bold">{option.label}</span>
       <span className="text-[13px] text-center px-1 opacity-90 leading-snug">
@@ -156,42 +157,45 @@ export default function OnboardingPage() {
           name: name.trim(),
           ageYears: Math.floor(ageMonths! / 12),
           ageMonths: ageMonths! % 12,
-          aiStyle: tone === "casual" ? "Casual" : tone === "empathetic" ? "Empathetic" : "Precise",
+          aiStyle:
+            tone === "casual"
+              ? "Casual"
+              : tone === "empathetic"
+              ? "Empathetic"
+              : "Precise",
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ name: data.error || "failed to save data"});
+        setErrors({ name: data.error || "Failed to save data" });
         return;
       }
 
       localStorage.setItem("onboardingComplete", "true");
       setStep(2);
-
     } catch (error) {
-      setErrors({ name: "error occured" });
+      setErrors({ name: "An error occurred" });
     }
   };
 
   return (
     <div className="bg-brand-bg min-h-screen flex items-center justify-center p-6 font-sans">
       <div className="bg-white border border-brand-orange rounded-3xl w-full max-w-200 shadow-sm px-8 md:px-16 pt-10 pb-10">
-
         {step === 1 && (
           <div className="max-w-150 mx-auto w-full">
             <h1 className="text-[30px] md:text-[34px] font-extrabold text-center mb-2 text-[#4A352F]">
               Let's get to know your child
             </h1>
             <p className="text-[15px] md:text-[16px] text-center mb-8 text-[#4A352F]">
-              This information helps us provide personalized support for your little one.
+              This information helps us provide personalized support for your
+              little one.
             </p>
 
-            {/* NAME */}
             <div className="w-full mb-5">
               <label className="block mb-2 text-[16px] font-bold text-[#4A352F]">
-                What's your child's name?
+                What&apos;s your child&apos;s name?
               </label>
               <input
                 value={name}
@@ -200,14 +204,13 @@ export default function OnboardingPage() {
                   setErrors((prev) => ({ ...prev, name: undefined }));
                 }}
                 placeholder="Example: Anna"
-                className="w-full h-12 px-4 rounded-xl bg-brand-peach border border-brand-orange outline-none text-[#4A352F] text-[16px] placeholder:text     -[#4A352F]/50"
+                className="w-full h-12 px-4 rounded-xl bg-brand-peach border border-brand-orange outline-none text-[#4A352F] text-[16px] placeholder:text-[#4A352F]/50"
               />
               {errors.name && (
                 <p className="text-red-500 text-sm mt-1">{errors.name}</p>
               )}
             </div>
 
-            {/* AGE */}
             <div className="w-full mb-5">
               <label className="block mb-2 text-[16px] font-bold text-[#4A352F]">
                 How old is your child?
@@ -231,7 +234,6 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* TONE */}
             <div className="w-full mb-6">
               <label className="block mb-2 text-[16px] font-bold text-[#4A352F]">
                 How should Kiddio respond to you?
@@ -254,7 +256,6 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* CONTINUE BUTTON*/}
             <div className="flex justify-center pt-2 pb-0">
               <button
                 onClick={handleContinue}
@@ -269,19 +270,19 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div className="flex flex-col items-center justify-center text-center max-w-125 mx-auto py-6">
             <h1 className="text-[38px] md:text-[44px] font-extrabold mb-4 text-[#4A352F]">
-              You're All Set!
+              You&apos;re All Set!
             </h1>
             <p className="text-[18px] md:text-[22px] mb-4 text-[#4A352F]">
-              Let's start your parenting journey here.
+              Let&apos;s start your parenting journey here.
             </p>
             <p className="mb-10 text-brand-muted text-[16px]">
               Ready to help you and{" "}
-              <strong className="text-[#4A352F]">{name}</strong> thrive together! 🌟
+              <strong className="text-[#4A352F]">{name}</strong> thrive
+              together! 🌟
             </p>
 
-            {/* EXPLORE NOW BUTTON*/}
             <button
-              onClick={() => router.push("/chat")}
+              onClick={() => router.push("/home")}
               className="w-full max-w-90 h-13 bg-brand-orange hover:bg-[#D67F54] transition text-white text-[18px] font-bold rounded-[16px]"
             >
               Explore Now
