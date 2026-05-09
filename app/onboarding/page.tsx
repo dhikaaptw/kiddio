@@ -154,7 +154,8 @@ export default function OnboardingPage() {
         },
         body: JSON.stringify({
           name: name.trim(),
-          age: Math.floor(ageMonths! / 12),
+          ageYears: Math.floor(ageMonths! / 12),
+          ageMonths: ageMonths! % 12,
           aiStyle: tone === "casual" ? "Casual" : tone === "empathetic" ? "Empathetic" : "Precise",
         }),
       });
