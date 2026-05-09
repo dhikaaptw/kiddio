@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/auth";
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params; 
         const userId = getUserIdFromRequest(request);
 
         if (!userId) {
@@ -13,9 +14,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
             );
         }
 
-        // validate requested user
         const chat = await prisma.chat.findUnique({
-            where: { id: params.id },
+            where: { id: id },
         });
 
         if (!chat || chat.userId !== userId) {
@@ -26,14 +26,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         }
 
         await prisma.message.deleteMany({
-            where: { chatId: params.id },
+            where: { chatId: id },
         });
         
-        await prisma.message.delete({
-        where: { id: params.id },
+        await prisma.chat.delete({
+            where: { id: id },
         });
         
-        return NextResponse.json({ message: "message has been deleted" });
+        return NextResponse.json({ message: "chat has been deleted" });
         
     } catch (error) {
         return NextResponse.json(
@@ -42,7 +42,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         );
     }
 }
-
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;

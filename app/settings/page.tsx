@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type AIPref = "Casual" | "Empathetic" | "Precise";
-interface ChildProfile { name: string; years: number; months: number }
+interface ChildProfile { id: string; name: string; years: number; months: number }
 
 const AI_PREFS = [
   { name: "Casual" as AIPref, desc: "Friendly and relaxed" },
@@ -26,9 +26,9 @@ const CancelBtn = ({ onClick }: { onClick: () => void }) => (
     Cancel
   </button>
 );
-const SaveBtn = ({ onClick, label = "Save Changes" }: { onClick: () => void; label?: string }) => (
-  <button onClick={onClick} className="flex-1 h-11 rounded-2xl"
-    style={{ ...btnBase, background: "var(--color-brand-orange)", border: "none", color: "#fff" }}>
+const SaveBtn = ({ onClick, label = "Save Changes", disabled = false }: { onClick: () => void; label?: string; disabled?: boolean }) => (
+  <button onClick={onClick} disabled={disabled} className="flex-1 h-11 rounded-2xl"
+    style={{ ...btnBase, background: "var(--color-brand-orange)", border: "none", color: "#fff", opacity: disabled ? 0.7 : 1 }}>
     {label}
   </button>
 );
@@ -77,13 +77,20 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
   );
 }
 
-
 function ChildProfileModal({ open, onClose, profile, onSave }: {
   open: boolean; onClose: () => void; profile: ChildProfile; onSave: (p: ChildProfile) => void;
 }) {
   const [name, setName] = useState(profile.name);
   const [years, setYears] = useState(profile.years);
   const [months, setMonths] = useState(profile.months);
+  const [saving, setSaving] = useState(false);
+
+  // Sync state ketika profile berubah (data dari API masuk)
+  useEffect(() => {
+    setName(profile.name);
+    setYears(profile.years);
+    setMonths(profile.months);
+  }, [profile]);
 
   const changeYears = (d: number) => {
     const next = Math.max(0, Math.min(5, years + d));
@@ -91,6 +98,31 @@ function ChildProfileModal({ open, onClose, profile, onSave }: {
     if (next === 5) setMonths(0);
   };
   const changeMonths = (d: number) => setMonths(Math.max(0, Math.min(years === 5 ? 0 : 11, months + d)));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/children/${profile.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: name.trim() || "Child",
+          ageYears: years,
+          ageMonths: months,
+        }),
+      });
+      if (res.ok) {
+        onSave({ id: profile.id, name: name.trim() || "Child", years, months });
+        onClose();
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const Counter = ({ label, value, change }: { label: string; value: number; change: (d: number) => void }) => (
     <div className="flex-1 flex flex-col items-center gap-2 rounded-xl py-3"
@@ -111,9 +143,9 @@ function ChildProfileModal({ open, onClose, profile, onSave }: {
   return (
     <Modal open={open} onClose={onClose}>
       <div style={{ ...cs.title, fontSize: 22, marginBottom: 4 }}>Edit Child Profile</div>
-      <p style={{ ...cs.body, fontSize: 15, marginBottom: 20 }}>Update your child's info to keep recommendations relevant.</p>
+      <p style={{ ...cs.body, fontSize: 15, marginBottom: 20 }}>Update your child&apos;s info to keep recommendations relevant.</p>
       <div className="mb-5">
-        <label style={{ ...cs.title, fontSize: 16, display: "block", marginBottom: 8 }}>What's your child's name?</label>
+        <label style={{ ...cs.title, fontSize: 16, display: "block", marginBottom: 8 }}>What&apos;s your child&apos;s name?</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter name"
           style={{
             width: "100%", height: 44, border: "1.5px solid var(--color-brand-orange)", borderRadius: 12,
@@ -131,7 +163,7 @@ function ChildProfileModal({ open, onClose, profile, onSave }: {
       </div>
       <div className="flex gap-3">
         <CancelBtn onClick={onClose} />
-        <SaveBtn onClick={() => { onSave({ name: name.trim() || "Child", years, months }); onClose(); }} />
+        <SaveBtn onClick={handleSave} disabled={saving} label={saving ? "Saving..." : "Save Changes"} />
       </div>
     </Modal>
   );
@@ -141,6 +173,37 @@ function AIPrefModal({ open, onClose, current, onSave }: {
   open: boolean; onClose: () => void; current: AIPref; onSave: (p: AIPref) => void;
 }) {
   const [selected, setSelected] = useState<AIPref>(current);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { setSelected(current); }, [current]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/users", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ aiStyle: selected }),
+      });
+      if (res.ok) {
+        // Update localStorage juga
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          localStorage.setItem("user", JSON.stringify({ ...u, aiStyle: selected }));
+        }
+        onSave(selected);
+        onClose();
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Modal open={open} onClose={onClose}>
       <div style={{ ...cs.title, fontSize: 22, marginBottom: 4 }}>Edit AI Response Preference</div>
@@ -159,16 +222,14 @@ function AIPrefModal({ open, onClose, current, onSave }: {
       </div>
       <div className="flex gap-3">
         <CancelBtn onClick={onClose} />
-        <SaveBtn onClick={() => { onSave(selected); onClose(); }} />
+        <SaveBtn onClick={handleSave} disabled={saving} label={saving ? "Saving..." : "Save Changes"} />
       </div>
     </Modal>
   );
 }
 
-function DeleteModal({ open, onClose, onDelete }: { 
-  open: boolean; 
-  onClose: () => void;
-  onDelete: () => void;
+function DeleteModal({ open, onClose, onConfirm, deleting }: {
+  open: boolean; onClose: () => void; onConfirm: () => void; deleting: boolean;
 }) {
   return (
     <Modal open={open} onClose={onClose}>
@@ -181,7 +242,13 @@ function DeleteModal({ open, onClose, onDelete }: {
       </div>
       <div className="flex gap-3">
         <CancelBtn onClick={onClose} />
-        <SaveBtn onClick={onDelete} label="Yes, Delete" />
+        <button
+          onClick={onConfirm}
+          disabled={deleting}
+          className="flex-1 h-11 rounded-2xl"
+          style={{ ...btnBase, background: "#e53e3e", border: "none", color: "#fff", opacity: deleting ? 0.7 : 1 }}>
+          {deleting ? "Deleting..." : "Yes, Delete"}
+        </button>
       </div>
     </Modal>
   );
@@ -219,8 +286,77 @@ export default function SettingsPage() {
   const [modalChild, setModalChild] = useState(false);
   const [modalAI, setModalAI] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const currentAIPref = AI_PREFS.find((p) => p.name === aiPref)!;
+  // Load data dari API saat halaman dibuka
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) { router.push("/login"); return; }
+
+      try {
+        const res = await fetch("/api/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) { router.push("/login"); return; }
+
+        const data = await res.json();
+        const user = data.user;
+
+        // Set AI preference dari user data
+        if (user.aiStyle) setAIPref(user.aiStyle as AIPref);
+
+        // Set child profile (ambil anak pertama)
+        if (user.children && user.children.length > 0) {
+          const child = user.children[0];
+          setProfile({
+            id: child.id,
+            name: child.name,
+            years: child.ageYears,
+            months: child.ageMonths,
+          });
+        }
+      } catch {
+        // error handling silent
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
+
+  // Hapus akun
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/users", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("onboardingComplete");
+        router.push("/login");
+      }
+    } finally {
+      setDeleting(false);
+      setModalDelete(false);
+    }
+  };
+
+  const currentAIPref = AI_PREFS.find((p) => p.name === aiPref) ?? AI_PREFS[0];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-brand-bg)" }}>
+        <p style={{ fontFamily: "'Fredoka', sans-serif", color: "var(--color-brand-muted)", fontSize: 18 }}>Loading...</p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const loadData = async () => {
@@ -309,16 +445,25 @@ export default function SettingsPage() {
 
           <SettingCard title="Disclaimer">
             <p style={{ ...cs.body, fontSize: 15 }}>
-              Kiddio provides general information and support for parenting and childcare. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for concerns about your child's health.
+              Kiddio provides general information and support for parenting and childcare. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for concerns about your child&apos;s health.
             </p>
           </SettingCard>
 
-          <SettingCard title="Child Profile" onEdit={() => setModalChild(true)}>
+          <SettingCard
+            title="Child Profile"
+            onEdit={profile.id ? () => setModalChild(true) : undefined}
+          >
             <div className="flex items-center gap-3">
               <IconCircle><ProfileIcon /></IconCircle>
               <div>
-                <div style={{ ...cs.title, fontSize: 16 }}>{profile.name}</div>
-                <div style={{ ...cs.muted, fontSize: 14 }}>{formatAge(profile.years, profile.months)}</div>
+                {profile.id ? (
+                  <>
+                    <div style={{ ...cs.title, fontSize: 16 }}>{profile.name}</div>
+                    <div style={{ ...cs.muted, fontSize: 14 }}>{formatAge(profile.years, profile.months)}</div>
+                  </>
+                ) : (
+                  <div style={{ ...cs.muted, fontSize: 14 }}>No child profile yet</div>
+                )}
               </div>
             </div>
           </SettingCard>
@@ -349,7 +494,14 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <ChildProfileModal open={modalChild} onClose={() => setModalChild(false)} profile={profile} onSave={setProfile} />
+      {profile.id && (
+        <ChildProfileModal
+          open={modalChild}
+          onClose={() => setModalChild(false)}
+          profile={profile}
+          onSave={setProfile}
+        />
+      )}
       <AIPrefModal open={modalAI} onClose={() => setModalAI(false)} current={aiPref} onSave={setAIPref} />
       <DeleteModal open={modalDelete} onClose={() => setModalDelete(false)} onDelete={handleDeleteAccount} />
     </div>

@@ -93,6 +93,7 @@ export async function DELETE(request: NextRequest) {
                 { status: 401 }
             );
         }
+<<<<<<< HEAD
 
         
         await prisma.message.deleteMany({
@@ -114,6 +115,17 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({
             message: "akun sudah dihapus bang",
         });
+=======
+        
+        await prisma.message.deleteMany({
+            where: { chat: { userId } },
+        });
+        await prisma.chat.deleteMany({ where: { userId } });
+        await prisma.child.deleteMany({ where: { userId } });
+        await prisma.user.delete({ where: { id: userId } });
+
+        return NextResponse.json({ message: "akun berhasil dihapus" });
+>>>>>>> 0fe4f6adbb8e04077edcbdeff95824921726eb63
 
     } catch (error) {
         return NextResponse.json(

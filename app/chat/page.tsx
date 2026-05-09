@@ -63,7 +63,7 @@ function ChatBubble({ msg }: { msg: Message }) {
                 ul: ({ children }) => <ul className="list-disc pl-4 mt-1">{children}</ul>,
                 ol: ({ children }) => <ol className="list-decimal pl-4 mt-1">{children}</ol>,
                 li: ({ children }) => <li className="mb-1">{children}</li>,
-                p: ({ children }) => <p className="mb-2 last: mb-0">{children}</p>,
+                p: ({ children }) => <p className="mb-2 last:">{children}</p>,
               }}
             >
             {msg.text}

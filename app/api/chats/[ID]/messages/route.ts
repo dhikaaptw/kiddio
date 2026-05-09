@@ -35,6 +35,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             );
         }
 
+        if (chat.title === "Chat baru" || chat.title === "New Chat") {
+            await prisma.chat.update({
+                where: { id: id },
+                data: { title: content.slice(0, 30) } 
+            });
+        }
+
         const user = await prisma.user.findUnique({
             where: { id: userId },
             include: { children: true },
