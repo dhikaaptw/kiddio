@@ -3,24 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-
 type Message = { role: "user" | "ai"; text: string };
-type Chat    = { id: number; title: string; messages: Message[] };
+type Chat = { id: string; title: string; messages: Message[] };
 
 const QUICK_TOPICS = ["Sleep Tips", "Feeding & Nutrition", "Health", "Behavior & Emotions", "Parental Advice"];
-
-const INITIAL_CHATS: Chat[] = [
-  {
-    id: 1, title: "Sleep Tips",
-    messages: [
-      { role: "user", text: "My 3 year old has been waking up at night. Is this normal?" },
-      { role: "ai",  text: "Hi! Yes, sleep regression can be normal at this age. It might be caused by growth, changes in routine, or developmental leaps." },
-      { role: "ai",  text: "Here are a few tips that might help:\n• Keep a consistent bedtime routine\n• Reduce screen time before bed\n• Create a calm and comforting environment" },
-    ],
-  },
-  { id: 2, title: "Health",     messages: [] },
-  { id: 3, title: "Food Tips",  messages: [] },
-];
 
 const AiAvatar = () => (
   <div className="w-9 h-9 rounded-full bg-brand-peach flex items-center justify-center shrink-0 mt-1">
@@ -112,33 +98,105 @@ function ChatItem({ chat, active, onSelect, onDelete }: {
 export default function ChatPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [chats, setChats] = useState<Chat[]>(INITIAL_CHATS);
-  const [activeChatId, setActiveChatId] = useState(1);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const activeChat = chats.find((c) => c.id === activeChatId) ?? chats[0];
+  const activeChat = chats.find((c) => c.id === activeChatId);
+
+  useEffect(() => {
+    const loadChats = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) { router.push("/login"); return; }
+
+      const res = await fetch("/api/chats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+
+      if (data.chats && data.chats.length > 0) {
+        const loadedChats = data.chats.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          messages: [],
+        }));
+        setChats(loadedChats);
+        setActiveChatId(loadedChats[0].id);
+        loadMessages(loadedChats[0].id, token);
+      }
+    };
+    loadChats();
+  }, []);
+
+  const loadMessages = async (chatId: string, token: string) => {
+    const res = await fetch(`/api/chats/${chatId}/messages`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+
+    if (data.messages) {
+      setChats((prev) => prev.map((c) => c.id === chatId
+        ? { ...c, messages: data.messages.map((m: any) => ({
+            role: m.role === "user" ? "user" : "ai",
+            text: m.content,
+          })) }
+        : c
+      ));
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeChat?.messages]);
 
-  const handleNewChat = () => {
-    const c: Chat = { id: Date.now(), title: "New Chat", messages: [] };
-    setChats((prev) => [c, ...prev]);
-    setActiveChatId(c.id);
+  const handleSelectChat = (chatId: string) => {
+    setActiveChatId(chatId);
+    const token = localStorage.getItem("token")!;
+    loadMessages(chatId, token);
   };
 
-  const handleDeleteChat = (id: number) => {
+  const handleNewChat = async () => {
+    const token = localStorage.getItem("token")!;
+    const res = await fetch("/api/chats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title: "New Chat" }),
+    });
+    const data = await res.json();
+
+    if (data.chat) {
+      const newChat: Chat = { id: data.chat.id, title: data.chat.title, messages: [] };
+      setChats((prev) => [newChat, ...prev]);
+      setActiveChatId(newChat.id);
+    }
+  };
+
+  const handleDeleteChat = async (id: string) => {
+    const token = localStorage.getItem("token")!;
+    await fetch(`/api/chats/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
     const remaining = chats.filter((c) => c.id !== id);
     setChats(remaining);
-    if (activeChatId === id) setActiveChatId(remaining[0]?.id ?? -1);
+    if (activeChatId === id) {
+      setActiveChatId(remaining[0]?.id ?? null);
+      if (remaining[0]) loadMessages(remaining[0].id, token);
+    }
   };
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const msg = (text ?? input).trim();
-    if (!msg) return;
+    if (!msg || !activeChatId) return;
+
+    const token = localStorage.getItem("token")!;
+
     setChats((prev) => prev.map((c) => c.id === activeChatId
       ? { ...c, messages: [...c.messages, { role: "user", text: msg }],
           title: c.title === "New Chat" ? msg.slice(0, 30) : c.title }
@@ -146,13 +204,25 @@ export default function ChatPage() {
     ));
     setInput("");
     setLoading(true);
-    setTimeout(() => {
+
+    const res = await fetch(`/api/chats/${activeChatId}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content: msg }),
+    });
+
+    const data = await res.json();
+    setLoading(false);
+
+    if (data.message) {
       setChats((prev) => prev.map((c) => c.id === activeChatId
-        ? { ...c, messages: [...c.messages, { role: "ai", text: "Thanks for your question! I'm here to help with all your parenting needs. Let me provide you with some helpful information on that topic." }] }
+        ? { ...c, messages: [...c.messages, { role: "ai", text: data.message.content }] }
         : c
       ));
-      setLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -169,9 +239,12 @@ export default function ChatPage() {
           <h2 className="font-display text-3xl text-brand-text mb-5 mt-1">Chat History</h2>
 
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            {chats.length === 0 && (
+              <p className="text-brand-muted text-sm text-center mt-4">Belum ada chat</p>
+            )}
             {chats.map((chat) => (
               <ChatItem key={chat.id} chat={chat} active={activeChatId === chat.id}
-                onSelect={() => setActiveChatId(chat.id)}
+                onSelect={() => handleSelectChat(chat.id)}
                 onDelete={() => handleDeleteChat(chat.id)} />
             ))}
           </div>
@@ -219,7 +292,7 @@ export default function ChatPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
-          {activeChat?.messages.length === 0 && (
+          {(!activeChat || activeChat.messages.length === 0) && (
             <div className="flex-1 flex flex-col items-center justify-center text-brand-muted text-lg gap-3 opacity-70 mt-20">
               <span className="text-5xl">💬</span>
               Start a conversation! Ask me anything about parenting.
@@ -244,7 +317,6 @@ export default function ChatPage() {
             </svg>
           </button>
         </div>
-
       </main>
     </div>
   );
