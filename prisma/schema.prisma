@@ -21,7 +21,8 @@ model User {
 model Child {
   id        String   @id @default(cuid())
   name      String
-  age       Int
+  ageYears  Int
+  ageMonths Int
   createdAt DateTime @default(now())
 
   userId    String
