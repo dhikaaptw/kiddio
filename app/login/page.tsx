@@ -35,6 +35,18 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       router.push("/chat");
+
+      const childRes = await fetch("/api/children", {
+        headers: { "Authorization": `Bearer ${data.token}` },
+      });
+      const childData = await childRes.json();
+
+      if (childData.children && childData.children.length > 0) {
+        router.push("/chat");
+      } else {
+        router.push("/onboarding");
+      }
+
     } catch {
       setError("Terjadi kesalahan, coba lagi");
       setLoading(false);
