@@ -33,7 +33,22 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/login");
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const loginData = await loginRes.json();
+
+      if (!loginRes.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(loginData.user));
+        router.push("/onboarding");
+      } else {
+        router.push("/login");
+      }
+      
     } catch {
       setError("Terjadi kesalahan, coba lagi");
       setLoading(false);
